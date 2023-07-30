@@ -40,6 +40,7 @@ public interface UserMapper {
 	@Mapping(source = "phoneNumber", target = "number")
 	@Mapping(source = "cityCode", target = "contrycode")
 	@Mapping(source = "countryCode", target = "citycode")
+	@Mapping(source = "id", target = "id")
 	PhoneDto map(UsersPhoneEntity sourceObject);
 	
 	

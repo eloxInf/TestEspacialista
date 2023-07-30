@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import cl.bci.espacialista.integracion.dto.RequestUpdateUser;
 import cl.bci.espacialista.integracion.dto.RequestUser;
 import cl.bci.espacialista.integracion.dto.ResponseGeneric;
 import cl.bci.espacialista.integracion.dto.ResponseListUser;
@@ -73,9 +74,11 @@ public class UserController {
 	
 	
 	@PutMapping(value = "/user")
-	public ResponseEntity<String> updateUser(@RequestHeader("Authorization") String token) {
+	public ResponseEntity<ResponseGeneric> updateUser(@RequestHeader("Authorization") @RequestBody RequestUpdateUser userUpdate, String token) {
 		
-		return new ResponseEntity<>("ok", HttpStatus.CREATED);
+		ResponseGeneric response = userMrg.updateUser(userUpdate, token);
+		
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 	
 }

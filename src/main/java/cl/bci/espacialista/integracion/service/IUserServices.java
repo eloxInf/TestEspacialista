@@ -2,6 +2,7 @@ package cl.bci.espacialista.integracion.service;
 
 import java.util.Date;
 
+import cl.bci.espacialista.integracion.dto.RequestUpdateUser;
 import cl.bci.espacialista.integracion.dto.RequestUser;
 import cl.bci.espacialista.integracion.dto.ResponseGeneric;
 import cl.bci.espacialista.integracion.dto.ResponseListUser;
@@ -30,5 +31,7 @@ public interface IUserServices {
 	ResponseListUser getAllUser();
 
 	UserDto getOneUser(String idUser);
+
+	ResponseGeneric updateUser(RequestUpdateUser userUpdate);
 
 }

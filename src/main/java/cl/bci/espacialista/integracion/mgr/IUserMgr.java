@@ -2,6 +2,7 @@ package cl.bci.espacialista.integracion.mgr;
 
 import org.springframework.validation.BindingResult;
 
+import cl.bci.espacialista.integracion.dto.RequestUpdateUser;
 import cl.bci.espacialista.integracion.dto.RequestUser;
 import cl.bci.espacialista.integracion.dto.ResponseGeneric;
 import cl.bci.espacialista.integracion.dto.ResponseListUser;
@@ -19,5 +20,7 @@ public interface IUserMgr {
 	ResponseListUser getAllUser(String token);
 
 	UserDto getOneUser(String token, String idUser);
+
+	ResponseGeneric updateUser(RequestUpdateUser userUpdate, String token);
 
 }

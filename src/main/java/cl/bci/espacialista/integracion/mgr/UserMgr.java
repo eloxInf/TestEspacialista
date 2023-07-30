@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.BindingResult;
 
+import cl.bci.espacialista.integracion.dto.RequestUpdateUser;
 import cl.bci.espacialista.integracion.dto.RequestUser;
 import cl.bci.espacialista.integracion.dto.ResponseGeneric;
 import cl.bci.espacialista.integracion.dto.ResponseListUser;
@@ -96,6 +97,13 @@ public class UserMgr implements IUserMgr {
 		}
 		
 		
+	}
+
+
+	@Override
+	public ResponseGeneric updateUser(RequestUpdateUser userUpdate, String token) {
+		checkIsValidToken(token);	
+		return userServices.updateUser(userUpdate);
 	}
 	
 	
