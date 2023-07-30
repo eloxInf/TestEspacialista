@@ -160,8 +160,10 @@ public class UserService implements IUserServices {
 
 	@Override
 	public ResponseGeneric deleteUser(String idUser) {
-
-		if (userRepository.existsById(idUser)) {
+		
+		Optional<UsersEntity> userDelete = userRepository.findById(idUser);
+		
+		if (!userDelete.isPresent()) {
 			throw new UserNotFoundException("Usuario no existe");
 
 		}
@@ -170,7 +172,7 @@ public class UserService implements IUserServices {
 			ResponseGeneric response = new ResponseGeneric();
 			response.setMessage("ok");
 
-			userRepository.deleteById(idUser);
+			userRepository.delete(userDelete.get());
 			return response;
 		} catch (Exception e) {
 			log.error("[UserService]-[deleteUser] error : ", e.getMessage());

@@ -63,7 +63,7 @@ public class UserController {
 	}
 
 	
-	@DeleteMapping(value = "/user/{id}")
+	@DeleteMapping(value = "/user/{idUser}")
 	public ResponseEntity<ResponseGeneric> deleteUser(@RequestHeader("Authorization") String token, @PathVariable String idUser) {
 		
 		ResponseGeneric response = userMrg.deleteUser(idUser, token);
