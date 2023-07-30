@@ -11,10 +11,13 @@ import org.springframework.validation.BindingResult;
 
 import cl.bci.espacialista.integracion.dto.RequestUser;
 import cl.bci.espacialista.integracion.dto.ResponseGeneric;
-import cl.bci.espacialista.integracion.dto.ResponseUser;
+import cl.bci.espacialista.integracion.dto.ResponseListUser;
+import cl.bci.espacialista.integracion.dto.UserDto;
+import cl.bci.espacialista.integracion.dto.ResponseCreateUser;
 import cl.bci.espacialista.integracion.errors.EmailExistException;
 import cl.bci.espacialista.integracion.errors.GenericException;
 import cl.bci.espacialista.integracion.errors.RequestDataException;
+import cl.bci.espacialista.integracion.errors.TokenException;
 import cl.bci.espacialista.integracion.service.IUserServices;
 import cl.bci.espacialista.integracion.service.UserService;
 import cl.bci.espacialista.integracion.service.security.ISecurityService;
@@ -38,7 +41,7 @@ public class UserMgr implements IUserMgr {
 	private ISecurityService securityService;
 	
 	@Override
-	public ResponseUser createUser(RequestUser requestUser, BindingResult errors) throws EmailExistException, GenericException {
+	public ResponseCreateUser createUser(RequestUser requestUser, BindingResult errors) throws EmailExistException, GenericException {
 
 		validRequestUser(requestUser, errors);
 		return userServices.createUser(requestUser);
@@ -47,10 +50,22 @@ public class UserMgr implements IUserMgr {
 	
 	
 	@Override
+	public ResponseListUser getAllUser(String token) {
+		checkIsValidToken(token);	
+		return userServices.getAllUser();
+	}
+	
+	@Override
+	public UserDto getOneUser(String token, String idUser) {
+		checkIsValidToken(token);	
+		return userServices.getOneUser(idUser);
+	}
+	
+	
+	@Override
 	public ResponseGeneric deleteUser(String idUser, String token) {
 		
-		//securityService.validateToken(token, idUser);
-		
+		checkIsValidToken(token);	
 		return userServices.deleteUser(idUser);
 		
 	}
@@ -71,10 +86,16 @@ public class UserMgr implements IUserMgr {
 		}
 	}
 	
-	private boolean checkIsValidUser() {
+	private void checkIsValidToken(String token) {
+		
+		boolean status = securityService.isValidToken(token);
+		
+		if(!status) {
+			
+			throw new TokenException("Error en token");
+		}
 		
 		
-		return true;
 	}
 	
 	

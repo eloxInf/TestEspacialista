@@ -1,7 +1,9 @@
 package cl.bci.espacialista.integracion.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,14 +15,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import cl.bci.espacialista.integracion.dto.PhoneDto;
 import cl.bci.espacialista.integracion.dto.RequestUser;
 import cl.bci.espacialista.integracion.dto.ResponseGeneric;
-import cl.bci.espacialista.integracion.dto.ResponseUser;
+import cl.bci.espacialista.integracion.dto.ResponseListUser;
+import cl.bci.espacialista.integracion.dto.UserDto;
+import cl.bci.espacialista.integracion.dto.ResponseCreateUser;
 import cl.bci.espacialista.integracion.entity.UsersEntity;
+import cl.bci.espacialista.integracion.entity.UsersPhoneEntity;
 import cl.bci.espacialista.integracion.errors.EmailExistException;
 import cl.bci.espacialista.integracion.errors.GenericException;
 import cl.bci.espacialista.integracion.errors.UserNotFoundException;
 import cl.bci.espacialista.integracion.mapper.UserMapper;
+import cl.bci.espacialista.integracion.repository.PhoneRepository;
 import cl.bci.espacialista.integracion.repository.UserRepository;
 import cl.bci.espacialista.integracion.service.security.ISecurityService;
 import cl.bci.espacialista.integracion.util.CommonUtil;
@@ -32,6 +39,12 @@ public class UserService implements IUserServices {
 
 	@Autowired
 	private UserRepository userRepository;
+	
+	
+	@Autowired
+	private PhoneRepository phoneRepository;
+	
+	
 
 	@Autowired
 	private UserMapper userMapper;
@@ -41,7 +54,7 @@ public class UserService implements IUserServices {
 
 	@Override
 	@Transactional
-	public ResponseUser createUser(RequestUser userData) throws EmailExistException, GenericException {
+	public ResponseCreateUser createUser(RequestUser userData) throws EmailExistException, GenericException {
 
 		if (userRepository.findByEmail(userData.getEmail()).isPresent()) {
 			throw new EmailExistException("Correo ya existe");
@@ -50,9 +63,14 @@ public class UserService implements IUserServices {
 
 		try {
 
-			UsersEntity usersEntity = setDataCreateUser(userData);
+			UsersEntity usersEntity = setDataCreateUser(userData);	
+			
+			List<UsersPhoneEntity> listPhone = setDataPhone(userData.getPhones(), usersEntity);
+			usersEntity.setPhones(listPhone);
+
 			UsersEntity userSave = userRepository.save(usersEntity);
-			ResponseUser responseUser = userMapper.usersEntityToResponseUser(userSave);
+			ResponseCreateUser responseUser = userMapper.usersEntityToResponseUser(userSave);
+			
 
 			return responseUser;
 
@@ -101,6 +119,25 @@ public class UserService implements IUserServices {
 		return true;
 
 	}
+	
+	private UsersEntity findUserById(String idUser) {
+		Optional<UsersEntity> userFind;
+		try {
+
+			userFind = userRepository.findById(idUser);
+
+			if (!userFind.isPresent())
+				throw new UserNotFoundException("Usuario no existe");
+
+		} catch (Exception e) {
+			log.error("[UserService]-[findUserByEmail] error : ", e.getMessage());
+			throw new GenericException("Internal Error");
+
+		}
+
+		return userFind.get();
+
+	}
 
 	private UsersEntity findUserByEmail(String email) {
 		Optional<UsersEntity> userFind;
@@ -142,6 +179,42 @@ public class UserService implements IUserServices {
 		}
 
 	}
+	
+
+	@Override
+	public ResponseListUser getAllUser() {
+		ResponseListUser response = new ResponseListUser();
+		
+		List<UsersEntity> listUser = userRepository.findAll();
+		
+		List<UserDto> listUserDto = new ArrayList<>();
+		for (UsersEntity user :listUser) {
+			
+			UserDto userDto = userMapper.usersEntityTouserDto(user);
+			List<PhoneDto> listphone = userMapper.listUsersPhoneEntityToListPhoneDto(user.getPhones());
+			userDto.setPhons(listphone);	
+			
+			listUserDto.add(userDto);
+		}
+
+		response.setUserData(listUserDto);
+
+		return response;
+	}
+	
+	@Override
+	public UserDto getOneUser(String idUser) {
+		UsersEntity  userFind =	findUserById(idUser);
+		
+		UserDto userDto = userMapper.usersEntityTouserDto(userFind);
+		List<PhoneDto> listphone = userMapper.listUsersPhoneEntityToListPhoneDto(userFind.getPhones());
+		
+		userDto.setPhons(listphone);
+		
+		return userDto;
+		
+	}
+	
 
 	@Override
 	public void getUser() {
@@ -161,7 +234,7 @@ public class UserService implements IUserServices {
 		String token = securityService.createToken(propertyUser, userData.getName());
 
 		UsersEntity usersEntity = userMapper.requestUserToUsersEntity(userData);
-
+		
 		String id = CommonUtil.generateUUID();
 		usersEntity.setIdUser(id);
 		usersEntity.setToken(token);
@@ -171,10 +244,21 @@ public class UserService implements IUserServices {
 		usersEntity.setCreated(dateNew);
 		usersEntity.setLastLogin(dateNew);
 		usersEntity.setModified(dateNew);
-
+		
 		usersEntity.setIsActive(true);
 
 		return usersEntity;
+	}
+	
+	private List<UsersPhoneEntity> setDataPhone(ArrayList<PhoneDto> listPhoneDto, UsersEntity userSave) {
+		List<UsersPhoneEntity> listPhone = new ArrayList<>();
+		for(PhoneDto phone : listPhoneDto) {	
+			UsersPhoneEntity phoneEnty = userMapper.phoneDtoToUsersPhoneEntity(phone);
+			phoneEnty.setUser(userSave);
+			listPhone.add(phoneEnty);
+		}
+		
+		return listPhone;
 	}
 
 }

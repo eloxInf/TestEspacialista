@@ -1,5 +1,7 @@
 package cl.bci.espacialista.integracion.controller;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cl.bci.espacialista.integracion.dto.RequestUser;
 import cl.bci.espacialista.integracion.dto.ResponseGeneric;
-import cl.bci.espacialista.integracion.dto.ResponseUser;
+import cl.bci.espacialista.integracion.dto.ResponseListUser;
+import cl.bci.espacialista.integracion.dto.UserDto;
+import cl.bci.espacialista.integracion.dto.ResponseCreateUser;
 import cl.bci.espacialista.integracion.errors.EmailExistException;
 import cl.bci.espacialista.integracion.errors.GenericException;
 import cl.bci.espacialista.integracion.mgr.IUserMgr;
@@ -36,12 +40,28 @@ public class UserController {
 	private IUserMgr userMrg;
 	
 	@PostMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ResponseUser> createUser(@Valid @RequestBody RequestUser userData, BindingResult errors) throws EmailExistException, GenericException {
+	public ResponseEntity<ResponseCreateUser> createUser(@Valid @RequestBody RequestUser userData, BindingResult errors) throws EmailExistException, GenericException {
 		
-		ResponseUser response = userMrg.createUser(userData, errors);
+		ResponseCreateUser response = userMrg.createUser(userData, errors);
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 		
 	}
+	
+	@GetMapping(value = "/user")
+	public ResponseEntity<ResponseListUser> getAllUser(@RequestHeader("Authorization") String token) {
+		
+		ResponseListUser response = userMrg.getAllUser(token);
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
+	}
+	
+	@GetMapping(value = "/user/{idUser}")
+	public ResponseEntity<UserDto> getUser(@RequestHeader("Authorization") String token, @PathVariable String idUser) {
+		
+		UserDto response = userMrg.getOneUser(token, idUser);
+		
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
+	}
+
 	
 	@DeleteMapping(value = "/user/{id}")
 	public ResponseEntity<ResponseGeneric> deleteUser(@RequestHeader("Authorization") String token, @PathVariable String idUser) {
@@ -51,17 +71,6 @@ public class UserController {
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 	
-	@GetMapping(value = "/user/{id}")
-	public ResponseEntity<String> getUser(@RequestHeader("Authorization") String token) {
-		
-		return new ResponseEntity<>("ok", HttpStatus.CREATED);
-	}
-	
-	@GetMapping(value = "/user")
-	public ResponseEntity<String> getAllUser(@RequestHeader("Authorization") String token) {
-		
-		return new ResponseEntity<>("ok", HttpStatus.CREATED);
-	}
 	
 	@PutMapping(value = "/user")
 	public ResponseEntity<String> updateUser(@RequestHeader("Authorization") String token) {
