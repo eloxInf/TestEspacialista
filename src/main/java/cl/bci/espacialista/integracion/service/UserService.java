@@ -1,6 +1,9 @@
 package cl.bci.espacialista.integracion.service;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -40,25 +43,81 @@ public class UserService implements IUserServices {
 	@Transactional
 	public ResponseUser createUser(RequestUser userData) throws EmailExistException, GenericException {
 
-		if (userRepository.existsByEmail(userData.getEmail())) {
+		if (userRepository.findByEmail(userData.getEmail()).isPresent()) {
 			throw new EmailExistException("Correo ya existe");
 
 		}
 
 		try {
 
-			UsersEntity usersEntity = setDataUser(userData);
+			UsersEntity usersEntity = setDataCreateUser(userData);
 			UsersEntity userSave = userRepository.save(usersEntity);
 			ResponseUser responseUser = userMapper.usersEntityToResponseUser(userSave);
 
 			return responseUser;
 
 		} catch (Exception e) {
-			log.error("[UserService]-[UserService] error : ", e.getCause());
+			log.error("[UserService]-[createUser] error : ", e.getCause());
 			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			throw new GenericException("Internal Error");
 
 		}
+
+	}
+
+	@Override
+	public Boolean checkEmailAndPass(String user, String pass) {
+
+		Boolean exist = false;
+
+		try {
+			exist = userRepository.existsByEmailAndPass(user, pass);
+		} catch (Exception e) {
+			log.error("[UserService]-[checkUserPass] error : ", e.getMessage());
+			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			throw new GenericException("Internal Error");
+
+		}
+		return exist;
+	}
+
+	@Override
+	public Boolean updateLastLogin(String idUser, String token, Date loginDate) {
+		UsersEntity user;
+
+		user = findUserByEmail(idUser);
+
+		try {
+			user.setToken(idUser);
+			user.setLastLogin(loginDate);
+			userRepository.save(user);
+			
+		} catch (Exception e) {
+			log.error("[UserService]-[updateLastLogin] error : ", e.getMessage());
+			throw new GenericException("Internal Error");
+
+		}
+
+		return true;
+
+	}
+
+	private UsersEntity findUserByEmail(String email) {
+		Optional<UsersEntity> userFind;
+		try {
+
+			userFind = userRepository.findByEmail(email);
+
+			if (!userFind.isPresent())
+				throw new UserNotFoundException("Usuario no existe");
+
+		} catch (Exception e) {
+			log.error("[UserService]-[findUserByEmail] error : ", e.getMessage());
+			throw new GenericException("Internal Error");
+
+		}
+
+		return userFind.get();
 
 	}
 
@@ -73,7 +132,7 @@ public class UserService implements IUserServices {
 
 			ResponseGeneric response = new ResponseGeneric();
 			response.setMessage("ok");
-			
+
 			userRepository.deleteById(idUser);
 			return response;
 		} catch (Exception e) {
@@ -94,8 +153,12 @@ public class UserService implements IUserServices {
 
 	}
 
-	private UsersEntity setDataUser(RequestUser userData) {
-		String token = securityService.generateToken(userData.getName(), userData.getPassword());
+	private UsersEntity setDataCreateUser(RequestUser userData) {
+		
+		Map<String, Object> propertyUser = new HashMap<String, Object>();
+		propertyUser.put("typeUser", "SA");
+		
+		String token = securityService.createToken(propertyUser, userData.getName());
 
 		UsersEntity usersEntity = userMapper.requestUserToUsersEntity(userData);
 

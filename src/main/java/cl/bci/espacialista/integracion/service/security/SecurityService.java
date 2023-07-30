@@ -5,8 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import cl.bci.espacialista.integracion.errors.TokenException;
+import cl.bci.espacialista.integracion.service.IUserServices;
+import cl.bci.espacialista.integracion.util.ValuesFromYmlUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -14,62 +18,64 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Service
 public class SecurityService implements ISecurityService {
 	
-    private final String secret = "secreto-muy-seguro"; // Cambia esto por tu propia clave secreta
+	@Autowired
+	private ValuesFromYmlUtil valuesFromYmlUtil;
+	
+	
+
     private final long expirationMs = 3600000;
 	
-	
-    @Override
-    public String generateToken(String username, String pass) {
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, username);
-    } 
     
     @Override
-	public String createToken(Map<String, Object> claims, String user) {
+	public String createToken(Map<String, Object> propertyUser, String user) {
         Date now = new Date();
         Date expirationDate = new Date(now.getTime() + expirationMs);
+        
+        String keyEncript = valuesFromYmlUtil.getKeyEncipt();
 
         return Jwts.builder()
-                .setClaims(claims)
+                .setClaims(propertyUser)
                 .setSubject(user)
                 .setIssuedAt(now)
                 .setExpiration(expirationDate)
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .signWith(SignatureAlgorithm.HS256, keyEncript)
                 .compact();
     }
     
-    @Override
+  
 	public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    @Override
+   
 	public boolean isTokenExpired(String token) {
         Date expiration = extractExpirationDate(token);
         return expiration.before(new Date());
     }
-
-    @Override
-	public Date extractExpirationDate(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
-
-    @Override
-	public Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
-    }
-    
-    @Override
-	public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-    
-    @Override
+	
+	   
     public boolean validateToken(String token, String username) {
         String extractedUsername = extractUsername(token);
         return (extractedUsername.equals(username) && !isTokenExpired(token));
     }
+
+  
+	private Date extractExpirationDate(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+
+   
+	private Claims extractAllClaims(String token) {
+        return Jwts.parser().setSigningKey(valuesFromYmlUtil.getKeyEncipt()).parseClaimsJws(token).getBody();
+    }
+    
+  
+	private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+    
+
 
 }

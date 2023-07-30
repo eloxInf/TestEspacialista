@@ -1,5 +1,8 @@
 package cl.bci.espacialista.integracion.mgr;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +49,7 @@ public class UserMgr implements IUserMgr {
 	@Override
 	public ResponseGeneric deleteUser(String idUser, String token) {
 		
-		securityService.validateToken(token, idUser);
+		//securityService.validateToken(token, idUser);
 		
 		return userServices.deleteUser(idUser);
 		
@@ -66,6 +69,12 @@ public class UserMgr implements IUserMgr {
 		if(!errorsDetail.isEmpty()) {	
 			throw new RequestDataException(errorsDetail);
 		}
+	}
+	
+	private boolean checkIsValidUser() {
+		
+		
+		return true;
 	}
 	
 	
