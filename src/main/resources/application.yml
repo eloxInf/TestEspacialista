@@ -1,0 +1,18 @@
+server:
+  port: 9090
+
+spring:
+  datasource:
+    url: ${URL_BD}
+    username: ${USER_BD}
+    password: ${PASS_BD}
+    driverClassName: org.hsqldb.jdbc.JDBCDriver
+  jpa:
+    hibernate:
+      ddl-auto: create
+security:
+  keyEncript: ${KEY_ENCRIPT}
+  timeToken: ${EXPIRATION_TOKEN}
+validation:
+  user:
+    email: ${EXPRESION_EMAIL}
