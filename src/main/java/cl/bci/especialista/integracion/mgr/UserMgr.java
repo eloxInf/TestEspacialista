@@ -38,10 +38,7 @@ public class UserMgr implements IUserMgr {
 	@Autowired
 	private ValuesFromYmlUtil valuesFromYmlUtil;
 	
-	
-	@Autowired
-	private ISecurityService securityService;
-	
+
 	/**
 	 * Crea usuario.
 	 */
@@ -59,7 +56,6 @@ public class UserMgr implements IUserMgr {
 	 */
 	@Override
 	public ResponseListUser getAllUser(String token) {
-		checkIsValidToken(token);	
 		return userServices.getAllUser();
 	}
 	
@@ -68,7 +64,6 @@ public class UserMgr implements IUserMgr {
 	 */
 	@Override
 	public UserDto getOneUser(String token, String idUser) {
-		checkIsValidToken(token);	
 		return userServices.getOneUser(idUser);
 	}
 	
@@ -78,8 +73,7 @@ public class UserMgr implements IUserMgr {
 	 */
 	@Override
 	public ResponseGeneric deleteUser(String idUser, String token) {
-		
-		checkIsValidToken(token);	
+
 		return userServices.deleteUser(idUser);
 		
 	}
@@ -98,7 +92,6 @@ public class UserMgr implements IUserMgr {
 			throw new RequestDataException("Correo no valido");
 		}
 		
-		checkIsValidToken(token);	
 		return userServices.updateUser(userUpdate);
 	}
 	
@@ -122,22 +115,6 @@ public class UserMgr implements IUserMgr {
 			throw new RequestDataException(errorsDetail);
 		}
 	}
-	
-	/**
-	 * @param token
-	 */
-	private void checkIsValidToken(String token) {
-		
-		boolean status = securityService.isValidToken(token);
-		
-		if(!status) {
-			
-			throw new TokenException("Error en token");
-		}
-		
-	}
 
-
-	
 	
 }

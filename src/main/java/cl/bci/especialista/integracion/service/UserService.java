@@ -141,14 +141,15 @@ public class UserService implements IUserServices {
 
 			userFind = userRepository.findById(idUser);
 
-			if (!userFind.isPresent())
-				throw new UserNotFoundException("Usuario no existe");
 
 		} catch (Exception e) {
 			log.error("[UserService]-[findUserByEmail] error : ", e.getMessage());
 			throw new GenericException("Internal Error");
 
 		}
+		
+		if (!userFind.isPresent())
+			throw new UserNotFoundException("Usuario no existe");
 
 		return userFind.get();
 
