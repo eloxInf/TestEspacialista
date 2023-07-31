@@ -8,10 +8,10 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>cl.bci</groupId>
-	<artifactId>espacialista.integracion</artifactId>
+	<artifactId>Especialista.Integracion</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>espacialistaintegracion</name>
-	<description>Espacialista Integracion Angelo Venegas</description>
+	<description>Especialista Integracion Angelo Venegas</description>
 	<properties>
 		<java.version>1.8</java.version>
 		<exclusions></exclusions>

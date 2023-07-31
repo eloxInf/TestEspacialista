@@ -1,10 +1,10 @@
-package cl.bci.espacialista.integracion;
+package cl.bci.especialista.integracion;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class EspacialistaintegracionApplicationTests {
+class EspecialistaintegracionApplicationTests {
 
 	@Test
 	void contextLoads() {
