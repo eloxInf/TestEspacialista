@@ -50,7 +50,7 @@ public class UserController {
 		
 	}
 	
-	@GetMapping(value = "/user")
+	@GetMapping(value = "/users")
 	public ResponseEntity<ResponseListUser> getAllUser(@RequestHeader("Authorization") String token) {
 		
 		ResponseListUser response = userMrg.getAllUser(token);
