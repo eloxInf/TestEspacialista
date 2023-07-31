@@ -1,4 +1,4 @@
-package cl.bci.especialista.integracion.integracion.service;
+package cl.bci.especialista.integracion.service;
 
 import java.util.ArrayList;
 import java.util.Date;

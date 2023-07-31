@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import cl.bci.especialista.integracion.errors.TokenException;
-import cl.bci.especialista.integracion.integracion.service.IUserServices;
+import cl.bci.especialista.integracion.service.IUserServices;
 import cl.bci.especialista.integracion.service.security.ISecurityService;
 
 @Component
