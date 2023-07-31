@@ -13,17 +13,13 @@ import cl.bci.espacialista.integracion.dto.UserDto;
 import cl.bci.espacialista.integracion.entity.UsersEntity;
 import cl.bci.espacialista.integracion.entity.UsersPhoneEntity;
 
+/**
+ * @author avenegas
+ *
+ */
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring")
 public interface UserMapper {
 
-	/*
-	@Mapping(source = "number", target = "phoneNumber")
-	@Mapping(source = "contrycode", target = "cityCode")
-	@Mapping(source = "citycode", target = "countryCode")
-	UsersPhoneEntity map(PhoneDto sourceObject);
-*/
-	
-	
 	
 	@Mapping(source = "password", target = "pass")
 	@Mapping(source = "email", target = "email")
@@ -43,12 +39,7 @@ public interface UserMapper {
 	@Mapping(source = "id", target = "id")
 	PhoneDto map(UsersPhoneEntity sourceObject);
 	
-	
-
 	List<PhoneDto> listUsersPhoneEntityToListPhoneDto(List<UsersPhoneEntity> soruce);
-	
-	
-	
 	
     List<UserDto> listUsersEntityToListUserDto(List<UsersEntity> listUser);
     

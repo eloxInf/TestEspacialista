@@ -7,6 +7,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Data;
 
+/**
+ * @author avenegas
+ *
+ */
 @Data
 public class UserDto {
 	private String idUser;
@@ -16,6 +20,7 @@ public class UserDto {
 	private Date modified;
 	@JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "UTC")
 	private String name;
+	private String email;
 	private Date lastLogin;
 	private String token;
 	private Boolean isActive;

@@ -1,7 +1,6 @@
 package cl.bci.espacialista.integracion.service.security;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -11,13 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cl.bci.espacialista.integracion.errors.TokenException;
-import cl.bci.espacialista.integracion.service.IUserServices;
-import cl.bci.espacialista.integracion.service.UserService;
 import cl.bci.espacialista.integracion.util.ValuesFromYmlUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
+/**
+ * @author avenegas
+ *
+ */
 @Service
 public class SecurityService implements ISecurityService {
 	
@@ -26,12 +27,14 @@ public class SecurityService implements ISecurityService {
 	@Autowired
 	private ValuesFromYmlUtil valuesFromYmlUtil;
 
-	private final long expirationMs = 600000;
-
+	/**
+	 * Genera token
+	 */
 	@Override
 	public String createToken(Map<String, Object> propertyUser, String user) {
 		Date now = new Date();
-		Date expirationDate = new Date(now.getTime() + expirationMs);
+		Long expi = Long.parseLong(valuesFromYmlUtil.getTokenExpiration());
+		Date expirationDate = new Date(now.getTime() + expi);
 
 		String keyEncript = valuesFromYmlUtil.getKeyEncipt();
 
@@ -39,6 +42,9 @@ public class SecurityService implements ISecurityService {
 				.signWith(SignatureAlgorithm.HS256, keyEncript).compact();
 	}
 
+	/**
+	 * Valida si token es correcto
+	 */
 	@Override
 	public boolean isValidToken(String token) {
 		boolean status = false;
@@ -52,7 +58,7 @@ public class SecurityService implements ISecurityService {
 			
 
 		} catch (Exception e) {
-			log.error("[SecurityService]-[isValidToken] error : ", e.getMessage());
+			log.error("[SecurityService]-[isValidToken] error : " + e.getMessage());
 			throw new TokenException("Error en token");
 		}
 
@@ -60,26 +66,31 @@ public class SecurityService implements ISecurityService {
 		return status;
 	}
 
-	private String extractUsername(String token) {
-		return extractClaim(token, Claims::getSubject);
-	}
-
+	/**
+	 * @param token
+	 * @return
+	 */
 	private Date extractExpirationDate(String token) {
 		return extractClaim(token, Claims::getExpiration);
 	}
 
+	/**
+	 * @param token
+	 * @return
+	 */
 	private Claims extractAllClaims(String token) {
 		return Jwts.parser().setSigningKey(valuesFromYmlUtil.getKeyEncipt()).parseClaimsJws(token).getBody();
 	}
 
+	/**
+	 * @param <T>
+	 * @param token
+	 * @param claimsResolver
+	 * @return
+	 */
 	private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
 		Claims claims = extractAllClaims(token);
 		return claimsResolver.apply(claims);
-	}
-
-	private boolean validateToken(String token, String username) {
-		String extractedUsername = extractUsername(token);
-		return (extractedUsername.equals(username) && !isValidToken(token));
 	}
 
 }

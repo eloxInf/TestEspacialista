@@ -20,11 +20,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @EnableSwagger2
 public class Swagger implements WebMvcConfigurer {
-	
-    /** The Constant FOUR_ZERO_ONE. */
-    private static final Integer FOUR_ZERO_ONE = 401;
-    
-    
+	    
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
@@ -76,7 +72,7 @@ public class Swagger implements WebMvcConfigurer {
     private static ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .title("BCI")
-                .license("Apache License Version 2.0")
+                .license("BCI")
                 .version("1.0")
                 .build();
     }

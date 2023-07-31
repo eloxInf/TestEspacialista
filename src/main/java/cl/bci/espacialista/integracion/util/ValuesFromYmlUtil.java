@@ -5,6 +5,10 @@ import org.springframework.stereotype.Component;
 
 import lombok.Data;
 
+/**
+ * @author avenegas
+ *
+ */
 @Component
 @Data
 public class ValuesFromYmlUtil {

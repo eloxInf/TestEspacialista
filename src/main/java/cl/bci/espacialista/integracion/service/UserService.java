@@ -35,6 +35,10 @@ import cl.bci.espacialista.integracion.repository.UserRepository;
 import cl.bci.espacialista.integracion.service.security.ISecurityService;
 import cl.bci.espacialista.integracion.util.CommonUtil;
 
+/**
+ * @author avenegas
+ *
+ */
 @Service
 public class UserService implements IUserServices {
 
@@ -52,6 +56,9 @@ public class UserService implements IUserServices {
 	@Autowired
 	private ISecurityService securityService;
 
+	/**
+	 * Crea el usuario
+	 */
 	@Override
 	@Transactional
 	public ResponseCreateUser createUser(RequestUser userData) throws EmailExistException, GenericException {
@@ -74,14 +81,16 @@ public class UserService implements IUserServices {
 			return responseUser;
 
 		} catch (Exception e) {
-			log.error("[UserService]-[createUser] error : ", e.getCause());
-			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+			log.error("[UserService]-[createUser] error : " + e.getMessage());
 			throw new GenericException("Internal Error");
 
 		}
 
 	}
 
+	/**
+	 * valida si existe mail y pass para un usuario.
+	 */
 	@Override
 	public Boolean checkEmailAndPass(String user, String pass) {
 
@@ -98,6 +107,9 @@ public class UserService implements IUserServices {
 		return exist;
 	}
 
+	/**
+	 * Actualiza el ultimo login y token
+	 */
 	@Override
 	public Boolean updateLastLogin(String idUser, String token, Date loginDate) {
 		UsersEntity user;
@@ -119,6 +131,10 @@ public class UserService implements IUserServices {
 
 	}
 
+	/**
+	 * @param idUser
+	 * @return
+	 */
 	private UsersEntity findUserById(String idUser) {
 		Optional<UsersEntity> userFind;
 		try {
@@ -138,6 +154,10 @@ public class UserService implements IUserServices {
 
 	}
 
+	/**
+	 * @param email
+	 * @return
+	 */
 	private UsersEntity findUserByEmail(String email) {
 		Optional<UsersEntity> userFind;
 		try {
@@ -157,6 +177,9 @@ public class UserService implements IUserServices {
 
 	}
 
+	/**
+	 * Elimina el usuario.
+	 */
 	@Override
 	public ResponseGeneric deleteUser(String idUser) {
 
@@ -181,6 +204,9 @@ public class UserService implements IUserServices {
 
 	}
 
+	/**
+	 * Obtiene todos los usuarios.
+	 */
 	@Override
 	public ResponseListUser getAllUser() {
 		ResponseListUser response = new ResponseListUser();
@@ -202,6 +228,9 @@ public class UserService implements IUserServices {
 		return response;
 	}
 
+	/**
+	 * Obtiene un usuario en particular.
+	 */
 	@Override
 	public UserDto getOneUser(String idUser) {
 		UsersEntity userFind = findUserById(idUser);
@@ -214,52 +243,11 @@ public class UserService implements IUserServices {
 		return userDto;
 
 	}
+	
 
-	@Override
-	public void getUser() {
-
-	}
-
-	@Override
-	public void updateUser() {
-
-	}
-
-	private UsersEntity setDataCreateUser(RequestUser userData) {
-
-		Map<String, Object> propertyUser = new HashMap<String, Object>();
-		propertyUser.put("typeUser", "SA");
-
-		String token = securityService.createToken(propertyUser, userData.getName());
-
-		UsersEntity usersEntity = userMapper.requestUserToUsersEntity(userData);
-
-		String id = CommonUtil.generateUUID();
-		usersEntity.setIdUser(id);
-		usersEntity.setToken(token);
-
-		Date dateNew = new Date();
-
-		usersEntity.setCreated(dateNew);
-		usersEntity.setLastLogin(dateNew);
-		usersEntity.setModified(dateNew);
-
-		usersEntity.setIsActive(true);
-
-		return usersEntity;
-	}
-
-	private List<UsersPhoneEntity> setDataPhone(ArrayList<PhoneDto> listPhoneDto, UsersEntity userSave) {
-		List<UsersPhoneEntity> listPhone = new ArrayList<>();
-		for (PhoneDto phone : listPhoneDto) {
-			UsersPhoneEntity phoneEnty = userMapper.phoneDtoToUsersPhoneEntity(phone);
-			phoneEnty.setUser(userSave);
-			listPhone.add(phoneEnty);
-		}
-
-		return listPhone;
-	}
-
+	/**
+	 * Actualiza un usuario y sus telefonos.
+	 */
 	@Override
 	@Transactional
 	public ResponseGeneric updateUser(RequestUpdateUser userRequest) {
@@ -275,10 +263,7 @@ public class UserService implements IUserServices {
 
 		}
 		
-		if (userRepository.findByEmail(userFind.get().getEmail()).isPresent()) {
-			throw new EmailExistException("Correo ya existe en otro usuario");
-
-		}
+		// TODO validar que el mail no exista en otro usuario.
 
 		try {
 
@@ -309,7 +294,58 @@ public class UserService implements IUserServices {
 
 		return response;
 	}
+
+
+	/**
+	 * @param userData
+	 * @return
+	 */
+	private UsersEntity setDataCreateUser(RequestUser userData) {
+
+		Map<String, Object> propertyUser = new HashMap<String, Object>();
+		propertyUser.put("typeUser", "SA");
+
+		String token = securityService.createToken(propertyUser, userData.getName());
+
+		UsersEntity usersEntity = userMapper.requestUserToUsersEntity(userData);
+
+		String id = CommonUtil.generateUUID();
+		usersEntity.setIdUser(id);
+		usersEntity.setToken(token);
+
+		Date dateNew = new Date();
+
+		usersEntity.setCreated(dateNew);
+		usersEntity.setLastLogin(dateNew);
+		usersEntity.setModified(dateNew);
+
+		usersEntity.setIsActive(true);
+
+		return usersEntity;
+	}
+
+	/**
+	 * @param listPhoneDto
+	 * @param userSave
+	 * @return
+	 */
+	private List<UsersPhoneEntity> setDataPhone(ArrayList<PhoneDto> listPhoneDto, UsersEntity userSave) {
+		List<UsersPhoneEntity> listPhone = new ArrayList<>();
+		for (PhoneDto phone : listPhoneDto) {
+			UsersPhoneEntity phoneEnty = userMapper.phoneDtoToUsersPhoneEntity(phone);
+			phoneEnty.setUser(userSave);
+			listPhone.add(phoneEnty);
+		}
+
+		return listPhone;
+	}
+
 	
+	/**
+	 * @param actualPhone
+	 * @param requestPhone
+	 * @param userToUpdate
+	 */
 	private void newPhone(List<UsersPhoneEntity> actualPhone, List<PhoneUpdateDto> requestPhone, UsersEntity userToUpdate) {
 
 		List<PhoneUpdateDto> newPhoneList = requestPhone.stream()
@@ -329,6 +365,10 @@ public class UserService implements IUserServices {
 		
 	}
 	
+	/**
+	 * @param actualPhone
+	 * @param requestPhone
+	 */
 	private void updatePhone(List<UsersPhoneEntity> actualPhone, List<PhoneUpdateDto> requestPhone)  {
 		
 		List<UsersPhoneEntity> updateCurrentPhone = actualPhone.stream()
@@ -345,6 +385,10 @@ public class UserService implements IUserServices {
 		}
 	}
 	
+	/**
+	 * @param actualPhone
+	 * @param requestPhone
+	 */
 	private void deletePhone(List<UsersPhoneEntity> actualPhone, List<PhoneUpdateDto> requestPhone) {
 		List<UsersPhoneEntity> deletePhone = actualPhone.stream()
 				.filter(x -> !findPhoneinRequest(requestPhone, x.getId() + "")).collect(Collectors.toList());
@@ -354,6 +398,11 @@ public class UserService implements IUserServices {
 		}
 	}
 
+	/**
+	 * @param updatePhone
+	 * @param id
+	 * @return
+	 */
 	private boolean findPhoneinRequest(List<PhoneUpdateDto> updatePhone, String id) {
 
 		Optional<PhoneUpdateDto> findElement = updatePhone.stream().filter(x -> x.getId().equals(id)).findAny();

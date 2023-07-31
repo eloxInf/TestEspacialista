@@ -13,13 +13,6 @@ import cl.bci.espacialista.integracion.errors.EmailExistException;
 
 public interface IUserServices {
 
-
-
-
-	void getUser();
-
-	void updateUser();
-
 	ResponseCreateUser createUser(RequestUser userData) throws EmailExistException;
 
 	ResponseGeneric deleteUser(String idUser);

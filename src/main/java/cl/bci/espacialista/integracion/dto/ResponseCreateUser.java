@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Data;
 
+/**
+ * @author avenegas
+ *
+ */
 @Data
 public class ResponseCreateUser {
 	private String idUser;

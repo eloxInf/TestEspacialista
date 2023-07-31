@@ -7,9 +7,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import cl.bci.espacialista.integracion.mgr.security.ISecurity;
-import cl.bci.espacialista.integracion.service.security.ISecurityService;
 import io.swagger.annotations.Api;
 
+/**
+ * @author avenegas
+ *
+ */
 @RestController
 @Api(tags = "APIS De Seguridad")
 @RequestMapping(value = "/security")

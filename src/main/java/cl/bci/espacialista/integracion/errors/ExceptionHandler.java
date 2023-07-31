@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import cl.bci.espacialista.integracion.dto.ResponseError;
 
+/**
+ * @author avenegas
+ *
+ */
 @RestControllerAdvice
 public class ExceptionHandler {
 

@@ -1,7 +1,5 @@
 package cl.bci.espacialista.integracion.controller;
 
-import java.util.List;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,16 +19,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cl.bci.espacialista.integracion.dto.RequestUpdateUser;
 import cl.bci.espacialista.integracion.dto.RequestUser;
+import cl.bci.espacialista.integracion.dto.ResponseCreateUser;
 import cl.bci.espacialista.integracion.dto.ResponseGeneric;
 import cl.bci.espacialista.integracion.dto.ResponseListUser;
 import cl.bci.espacialista.integracion.dto.UserDto;
-import cl.bci.espacialista.integracion.dto.ResponseCreateUser;
 import cl.bci.espacialista.integracion.errors.EmailExistException;
 import cl.bci.espacialista.integracion.errors.GenericException;
 import cl.bci.espacialista.integracion.mgr.IUserMgr;
 import io.swagger.annotations.Api;
 
 
+/**
+ * @author avenegas
+ *
+ */
 @RestController
 @Api(tags = "Apis de Usuario")
 @RequestMapping(value = "espacialista/v1")

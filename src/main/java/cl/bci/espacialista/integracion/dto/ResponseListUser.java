@@ -4,6 +4,10 @@ import java.util.List;
 
 import lombok.Data;
 
+/**
+ * @author avenegas
+ *
+ */
 @Data
 public class ResponseListUser {
 	

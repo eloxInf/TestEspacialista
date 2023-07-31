@@ -1,8 +1,5 @@
 package cl.bci.espacialista.integracion.mgr;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +8,10 @@ import org.springframework.validation.BindingResult;
 
 import cl.bci.espacialista.integracion.dto.RequestUpdateUser;
 import cl.bci.espacialista.integracion.dto.RequestUser;
+import cl.bci.espacialista.integracion.dto.ResponseCreateUser;
 import cl.bci.espacialista.integracion.dto.ResponseGeneric;
 import cl.bci.espacialista.integracion.dto.ResponseListUser;
 import cl.bci.espacialista.integracion.dto.UserDto;
-import cl.bci.espacialista.integracion.dto.ResponseCreateUser;
 import cl.bci.espacialista.integracion.errors.EmailExistException;
 import cl.bci.espacialista.integracion.errors.GenericException;
 import cl.bci.espacialista.integracion.errors.RequestDataException;
@@ -26,6 +23,10 @@ import cl.bci.espacialista.integracion.util.CommonUtil;
 import cl.bci.espacialista.integracion.util.ErrorUtil;
 import cl.bci.espacialista.integracion.util.ValuesFromYmlUtil;
 
+/**
+ * @author avenegas
+ *
+ */
 @Component
 public class UserMgr implements IUserMgr {
 	
@@ -41,6 +42,9 @@ public class UserMgr implements IUserMgr {
 	@Autowired
 	private ISecurityService securityService;
 	
+	/**
+	 * Crea usuario.
+	 */
 	@Override
 	public ResponseCreateUser createUser(RequestUser requestUser, BindingResult errors) throws EmailExistException, GenericException {
 
@@ -50,12 +54,18 @@ public class UserMgr implements IUserMgr {
 	}
 	
 	
+	/**
+	 * Obtiene todos los usuarios.
+	 */
 	@Override
 	public ResponseListUser getAllUser(String token) {
 		checkIsValidToken(token);	
 		return userServices.getAllUser();
 	}
 	
+	/**
+	 * Obtiene un usuario.
+	 */
 	@Override
 	public UserDto getOneUser(String token, String idUser) {
 		checkIsValidToken(token);	
@@ -63,6 +73,9 @@ public class UserMgr implements IUserMgr {
 	}
 	
 	
+	/**
+	 * Elimina un usuario
+	 */
 	@Override
 	public ResponseGeneric deleteUser(String idUser, String token) {
 		
@@ -71,7 +84,30 @@ public class UserMgr implements IUserMgr {
 		
 	}
 	
+
+	/**
+	 * Actualiza un usuario.
+	 */
+	@Override
+	public ResponseGeneric updateUser(RequestUpdateUser userUpdate, String token) {
+		
+		String expresionEmail = valuesFromYmlUtil.getEmailExpresion();
+		Boolean validEmail = CommonUtil.validateRegexPattern(userUpdate.getEmail(), expresionEmail);
+		
+		if(!validEmail) {
+			throw new RequestDataException("Correo no valido");
+		}
+		
+		checkIsValidToken(token);	
+		return userServices.updateUser(userUpdate);
+	}
 	
+	
+	
+	/**
+	 * @param requestUser
+	 * @param errors
+	 */
 	private void validRequestUser(RequestUser requestUser, BindingResult errors) {
 		
 		String errorsDetail = ErrorUtil.getDetailError(errors);
@@ -87,6 +123,9 @@ public class UserMgr implements IUserMgr {
 		}
 	}
 	
+	/**
+	 * @param token
+	 */
 	private void checkIsValidToken(String token) {
 		
 		boolean status = securityService.isValidToken(token);
@@ -96,16 +135,9 @@ public class UserMgr implements IUserMgr {
 			throw new TokenException("Error en token");
 		}
 		
-		
 	}
 
 
-	@Override
-	public ResponseGeneric updateUser(RequestUpdateUser userUpdate, String token) {
-		checkIsValidToken(token);	
-		return userServices.updateUser(userUpdate);
-	}
-	
 	
 	
 }

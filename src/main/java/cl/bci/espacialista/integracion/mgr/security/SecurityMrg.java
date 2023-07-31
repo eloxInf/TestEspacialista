@@ -21,13 +21,15 @@ public class SecurityMrg implements ISecurity {
 	private IUserServices userServices;
 	
 	
+	/**
+	 * Login de usuario
+	 */
 	@Override
 	public String loginUser(String email, String pass) {
 		
 		validateUserPass(email, pass);
 		Date dateNow = new Date();
-		
-		// Deberia existir una logica de permisos de usuario en persistencia.
+	
 		Map<String, Object> propertyUser = new HashMap<String, Object>();
 		propertyUser.put("typeUser", "SA");
 		
@@ -41,11 +43,14 @@ public class SecurityMrg implements ISecurity {
 	
 	
     
+    /**
+     * @param user
+     * @param pass
+     */
     public void validateUserPass(String user, String pass) {
     	Boolean exist = userServices.checkEmailAndPass(user, pass);
     	
     	if(!exist) {
-    		// Todo Se podria cambiar por nombre mas generico.
     		throw new TokenException("error user/pass");
     	}
     	

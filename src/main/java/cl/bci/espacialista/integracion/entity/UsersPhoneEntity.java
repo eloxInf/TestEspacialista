@@ -13,6 +13,10 @@ import javax.persistence.Table;
 
 import lombok.Data;
 
+/**
+ * @author avenegas
+ *
+ */
 @Entity
 @Table(name = "tb_Users_Phone")
 @Data
