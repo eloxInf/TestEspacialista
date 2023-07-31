@@ -15,10 +15,8 @@ import cl.bci.especialista.integracion.dto.UserDto;
 import cl.bci.especialista.integracion.errors.EmailExistException;
 import cl.bci.especialista.integracion.errors.GenericException;
 import cl.bci.especialista.integracion.errors.RequestDataException;
-import cl.bci.especialista.integracion.errors.TokenException;
 import cl.bci.especialista.integracion.service.IUserServices;
 import cl.bci.especialista.integracion.service.UserService;
-import cl.bci.especialista.integracion.service.security.ISecurityService;
 import cl.bci.especialista.integracion.util.CommonUtil;
 import cl.bci.especialista.integracion.util.ErrorUtil;
 import cl.bci.especialista.integracion.util.ValuesFromYmlUtil;
@@ -55,7 +53,7 @@ public class UserMgr implements IUserMgr {
 	 * Obtiene todos los usuarios.
 	 */
 	@Override
-	public ResponseListUser getAllUser(String token) {
+	public ResponseListUser getAllUser() {
 		return userServices.getAllUser();
 	}
 	
@@ -63,7 +61,7 @@ public class UserMgr implements IUserMgr {
 	 * Obtiene un usuario.
 	 */
 	@Override
-	public UserDto getOneUser(String token, String idUser) {
+	public UserDto getOneUser(String idUser) {
 		return userServices.getOneUser(idUser);
 	}
 	
@@ -72,7 +70,7 @@ public class UserMgr implements IUserMgr {
 	 * Elimina un usuario
 	 */
 	@Override
-	public ResponseGeneric deleteUser(String idUser, String token) {
+	public ResponseGeneric deleteUser(String idUser) {
 
 		return userServices.deleteUser(idUser);
 		
@@ -83,7 +81,7 @@ public class UserMgr implements IUserMgr {
 	 * Actualiza un usuario.
 	 */
 	@Override
-	public ResponseGeneric updateUser(RequestUpdateUser userUpdate, String token) {
+	public ResponseGeneric updateUser(RequestUpdateUser userUpdate) {
 		
 		String expresionEmail = valuesFromYmlUtil.getEmailExpresion();
 		Boolean validEmail = CommonUtil.validateRegexPattern(userUpdate.getEmail(), expresionEmail);

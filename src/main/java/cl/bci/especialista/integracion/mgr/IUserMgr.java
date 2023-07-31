@@ -15,12 +15,12 @@ public interface IUserMgr {
 
 	ResponseCreateUser createUser(RequestUser requestUser, BindingResult errors) throws EmailExistException, GenericException;
 
-	ResponseGeneric deleteUser(String idUser, String token);
+	ResponseGeneric deleteUser(String idUser);
 
-	ResponseListUser getAllUser(String token);
+	ResponseListUser getAllUser();
 
-	UserDto getOneUser(String token, String idUser);
+	UserDto getOneUser(String idUser);
 
-	ResponseGeneric updateUser(RequestUpdateUser userUpdate, String token);
+	ResponseGeneric updateUser(RequestUpdateUser userUpdate);
 
 }

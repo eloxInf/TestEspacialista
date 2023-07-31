@@ -53,14 +53,14 @@ public class UserController {
 	@GetMapping(value = "/users")
 	public ResponseEntity<ResponseListUser> getAllUser(@RequestHeader("Authorization") String token) {
 		
-		ResponseListUser response = userMrg.getAllUser(token);
+		ResponseListUser response = userMrg.getAllUser();
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 	
 	@GetMapping(value = "/user/{idUser}")
 	public ResponseEntity<UserDto> getUser(@RequestHeader("Authorization") String token, @PathVariable String idUser) {
 		
-		UserDto response = userMrg.getOneUser(token, idUser);
+		UserDto response = userMrg.getOneUser(idUser);
 		
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
@@ -69,7 +69,7 @@ public class UserController {
 	@DeleteMapping(value = "/user/{idUser}")
 	public ResponseEntity<ResponseGeneric> deleteUser(@RequestHeader("Authorization") String token, @PathVariable String idUser) {
 		
-		ResponseGeneric response = userMrg.deleteUser(idUser, token);
+		ResponseGeneric response = userMrg.deleteUser(idUser);
 		
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
@@ -78,7 +78,7 @@ public class UserController {
 	@PutMapping(value = "/user")
 	public ResponseEntity<ResponseGeneric> updateUser(@RequestHeader("Authorization") @RequestBody RequestUpdateUser userUpdate, String token) {
 		
-		ResponseGeneric response = userMrg.updateUser(userUpdate, token);
+		ResponseGeneric response = userMrg.updateUser(userUpdate);
 		
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
