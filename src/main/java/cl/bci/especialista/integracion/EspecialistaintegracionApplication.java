@@ -9,10 +9,10 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @EnableWebMvc
 @SpringBootApplication
-public class EspacialistaintegracionApplication {
+public class EspecialistaintegracionApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(EspacialistaintegracionApplication.class, args);
+		SpringApplication.run(EspecialistaintegracionApplication.class, args);
 	}
 
 }

@@ -35,7 +35,7 @@ import io.swagger.annotations.Api;
  */
 @RestController
 @Api(tags = "Apis de Usuario")
-@RequestMapping(value = "espacialista/v1")
+@RequestMapping(value = "especialista/v1")
 public class UserController {
 	
 	
