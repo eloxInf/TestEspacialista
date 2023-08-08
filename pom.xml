@@ -7,10 +7,10 @@
 		<version>2.7.14</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>cl.bci</groupId>
+	<groupId>cl.rest</groupId>
 	<artifactId>Especialista.Integracion</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>espacialistaintegracion</name>
+	<name>Especialista Integracion</name>
 	<description>Especialista Integracion Angelo Venegas</description>
 	<properties>
 		<java.version>1.8</java.version>
