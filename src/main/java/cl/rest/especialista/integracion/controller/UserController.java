@@ -43,11 +43,10 @@ public class UserController {
 	private IUserMgr userMrg;
 	
 	@PostMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<ResponseCreateUser> createUser(@Valid @RequestBody RequestUser userData, BindingResult errors) throws EmailExistException, GenericException {
+	public ResponseEntity<ResponseCreateUser> createUser(@Valid @RequestBody RequestUser userData, BindingResult errors) {
 		
 		ResponseCreateUser response = userMrg.createUser(userData, errors);
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
-		
 	}
 	
 	@GetMapping(value = "/users")
@@ -76,9 +75,9 @@ public class UserController {
 	
 	
 	@PutMapping(value = "/user")
-	public ResponseEntity<ResponseGeneric> updateUser(@RequestHeader("Authorization") @RequestBody RequestUpdateUser userUpdate, String token) {
+	public ResponseEntity<ResponseGeneric> updateUser(@RequestHeader("Authorization") @RequestBody RequestUpdateUser userUpdate, String token, BindingResult errors) {
 		
-		ResponseGeneric response = userMrg.updateUser(userUpdate);
+		ResponseGeneric response = userMrg.updateUser(userUpdate, errors);
 		
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}

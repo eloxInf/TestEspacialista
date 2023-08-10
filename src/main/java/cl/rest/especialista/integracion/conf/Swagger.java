@@ -58,7 +58,7 @@ public class Swagger implements WebMvcConfigurer {
                 .useDefaultResponseMessages(false)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("cl.bci.especialista.integracion.controller"))
+                .apis(RequestHandlerSelectors.basePackage("cl.rest.especialista.integracion.controller"))
                 .paths(paths())
                 .build();
     }

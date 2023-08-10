@@ -21,6 +21,6 @@ public interface IUserMgr {
 
 	UserDto getOneUser(String idUser);
 
-	ResponseGeneric updateUser(RequestUpdateUser userUpdate);
+	ResponseGeneric updateUser(RequestUpdateUser userUpdate, BindingResult errors);
 
 }

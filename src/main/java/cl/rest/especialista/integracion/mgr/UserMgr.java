@@ -43,7 +43,7 @@ public class UserMgr implements IUserMgr {
 	@Override
 	public ResponseCreateUser createUser(RequestUser requestUser, BindingResult errors) throws EmailExistException, GenericException {
 
-		validRequestUser(requestUser, errors);
+		validateError(errors);
 		return userServices.createUser(requestUser);
 		
 	}
@@ -81,16 +81,23 @@ public class UserMgr implements IUserMgr {
 	 * Actualiza un usuario.
 	 */
 	@Override
-	public ResponseGeneric updateUser(RequestUpdateUser userUpdate) {
+	public ResponseGeneric updateUser(RequestUpdateUser userUpdate, BindingResult errors) {
 		
-		String expresionEmail = valuesFromYmlUtil.getEmailExpresion();
-		Boolean validEmail = CommonUtil.validateRegexPattern(userUpdate.getEmail(), expresionEmail);
-		
-		if(!validEmail) {
-			throw new RequestDataException("Correo no valido");
-		}
-		
+		validateError(errors);	
 		return userServices.updateUser(userUpdate);
+	}
+	
+	
+	/**
+	 * @param requestUser
+	 * @param errors
+	 */
+	private void validateError(BindingResult errors) {	
+		String errorsDetail = ErrorUtil.getDetailError(errors);
+
+		if(!errorsDetail.isEmpty()) {	
+			throw new RequestDataException(errorsDetail);
+		}
 	}
 	
 	
@@ -102,12 +109,13 @@ public class UserMgr implements IUserMgr {
 	private void validRequestUser(RequestUser requestUser, BindingResult errors) {
 		
 		String errorsDetail = ErrorUtil.getDetailError(errors);
-		String expresionEmail = valuesFromYmlUtil.getEmailExpresion();
-		Boolean validEmail = CommonUtil.validateRegexPattern(requestUser.getEmail(), expresionEmail);
+		//String expresionEmail = valuesFromYmlUtil.getEmailExpresion();
+		//Boolean validEmail = CommonUtil.validateRegexPattern(requestUser.getEmail(), expresionEmail);
 		
+		/*
 		if(!validEmail) {
 			throw new RequestDataException("Correo no valido");
-		}
+		}*/
 		
 		if(!errorsDetail.isEmpty()) {	
 			throw new RequestDataException(errorsDetail);
