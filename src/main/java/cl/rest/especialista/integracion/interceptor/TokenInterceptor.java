@@ -18,6 +18,7 @@ public class TokenInterceptor implements HandlerInterceptor {
 	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+		/*
 		String url = request.getRequestURL().toString();
 		String httpMethod = request.getMethod();
 		
@@ -41,7 +42,8 @@ public class TokenInterceptor implements HandlerInterceptor {
 		checkIsValidToken(token);
 		
 		return true;
-		
+		*/
+		return true;
 	}
 	
 	

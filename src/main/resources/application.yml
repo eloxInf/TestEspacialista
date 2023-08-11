@@ -2,6 +2,10 @@ server:
   port: 9090
 
 spring:
+  security:
+    user:
+      name: angelo
+      password: 123456
   datasource:
     url: ${URL_BD}
     username: ${USER_BD}
@@ -16,3 +20,4 @@ security:
 validation:
   user:
     email: ${EXPRESION_EMAIL}
+

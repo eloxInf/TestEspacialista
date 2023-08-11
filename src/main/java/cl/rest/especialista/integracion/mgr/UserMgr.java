@@ -99,27 +99,4 @@ public class UserMgr implements IUserMgr {
 		}
 	}
 	
-	
-	
-	/**
-	 * @param requestUser
-	 * @param errors
-	 */
-	private void validRequestUser(RequestUser requestUser, BindingResult errors) {
-		
-		String errorsDetail = ErrorUtil.getDetailError(errors);
-		//String expresionEmail = valuesFromYmlUtil.getEmailExpresion();
-		//Boolean validEmail = CommonUtil.validateRegexPattern(requestUser.getEmail(), expresionEmail);
-		
-		/*
-		if(!validEmail) {
-			throw new RequestDataException("Correo no valido");
-		}*/
-		
-		if(!errorsDetail.isEmpty()) {	
-			throw new RequestDataException(errorsDetail);
-		}
-	}
-
-	
 }
