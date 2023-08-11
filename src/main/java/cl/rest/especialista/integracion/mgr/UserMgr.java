@@ -17,9 +17,7 @@ import cl.rest.especialista.integracion.errors.GenericException;
 import cl.rest.especialista.integracion.errors.RequestDataException;
 import cl.rest.especialista.integracion.service.IUserServices;
 import cl.rest.especialista.integracion.service.UserService;
-import cl.rest.especialista.integracion.util.CommonUtil;
 import cl.rest.especialista.integracion.util.ErrorUtil;
-import cl.rest.especialista.integracion.util.ValuesFromYmlUtil;
 
 /**
  * @author avenegas

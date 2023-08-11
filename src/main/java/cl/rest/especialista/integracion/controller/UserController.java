@@ -23,8 +23,6 @@ import cl.rest.especialista.integracion.dto.ResponseCreateUser;
 import cl.rest.especialista.integracion.dto.ResponseGeneric;
 import cl.rest.especialista.integracion.dto.ResponseListUser;
 import cl.rest.especialista.integracion.dto.UserDto;
-import cl.rest.especialista.integracion.errors.EmailExistException;
-import cl.rest.especialista.integracion.errors.GenericException;
 import cl.rest.especialista.integracion.mgr.IUserMgr;
 import io.swagger.annotations.Api;
 
