@@ -33,9 +33,10 @@ public class UserMgr implements IUserMgr {
 	@Autowired
 	private IUserServices userServices;
 	
+	/*
 	@Autowired
 	private ValuesFromYmlUtil valuesFromYmlUtil;
-	
+	*/
 
 	/**
 	 * Crea usuario.

@@ -1,19 +1,26 @@
 package cl.rest.especialista.integracion.dto;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author avenegas
  *
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class RequestUser {
 
 	@NotEmpty
@@ -32,5 +39,5 @@ public class RequestUser {
 	
 	@NotEmpty
 	@Valid
-    private ArrayList<PhoneDto> phones;
+    private List<PhoneDto> phones;
 }

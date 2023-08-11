@@ -1,50 +1,99 @@
 package cl.rest.especialista.integracion.mapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.ReportingPolicy;
+import org.springframework.stereotype.Component;
 
 import cl.rest.especialista.integracion.dto.PhoneDto;
-import cl.rest.especialista.integracion.dto.RequestUser;
 import cl.rest.especialista.integracion.dto.ResponseCreateUser;
 import cl.rest.especialista.integracion.dto.UserDto;
 import cl.rest.especialista.integracion.entity.UsersEntity;
 import cl.rest.especialista.integracion.entity.UsersPhoneEntity;
 
-/**
- * @author avenegas
- *
- */
-@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring")
-public interface UserMapper {
+@Component
+public class UserMapper {
 
 	
-	@Mapping(source = "password", target = "pass")
-	@Mapping(source = "email", target = "email")
-	UsersEntity requestUserToUsersEntity(RequestUser requestUser);
 	
 	
-	@Mapping(source = "number", target = "phoneNumber")
-	@Mapping(source = "citycode", target = "cityCode")
-	@Mapping(source = "contrycode", target = "countryCode")
-	UsersPhoneEntity phoneDtoToUsersPhoneEntity(PhoneDto sourceObject);
+	public List<UsersPhoneEntity> listPhoneDtoToUsersListPhoneEntity(List<PhoneDto> list, UsersEntity userSave){
+		List<UsersPhoneEntity> listPhoneEntity = list.stream()
+		.map(phone -> UsersPhoneEntity.builder()
+				.phoneNumber(phone.getNumber())
+				.user(userSave)
+				.cityCode(phone.getCitycode())
+				.countryCode(phone.getContrycode()).build()
+				).collect(Collectors.toList());
+		
+		return listPhoneEntity;
+	}
 	
+	public List<PhoneDto> phoneBdToPhoneDto(List<UsersPhoneEntity> phones) {
 
+		List<PhoneDto> listPhoneResponse = phones.stream().map(phoneBd -> PhoneDto.builder()
+				.id(phoneBd.getId() + "")
+				.number(phoneBd.getPhoneNumber())
+				.citycode(phoneBd.getCityCode())
+				.contrycode(phoneBd.getCountryCode())
+				.build()
+				).collect(Collectors.toList());
+		
+		return listPhoneResponse;
+				
+	}
 	
-	@Mapping(source = "phoneNumber", target = "number")
-	@Mapping(source = "cityCode", target = "contrycode")
-	@Mapping(source = "countryCode", target = "citycode")
-	@Mapping(source = "id", target = "id")
-	PhoneDto map(UsersPhoneEntity sourceObject);
 	
-	List<PhoneDto> listUsersPhoneEntityToListPhoneDto(List<UsersPhoneEntity> soruce);
+	public UserDto userBdToUserDto(UsersEntity userBd) {
+		
+		UserDto userDto =  UserDto.builder()
+				.idUser(userBd.getIdUser())
+				.name(userBd.getName())
+				.email(userBd.getEmail())
+				.lastLogin(userBd.getLastLogin())
+				.modified(userBd.getModified())
+				.created(userBd.getCreated())
+				.isActive(userBd.getIsActive())
+				.token(userBd.getToken())
+				.phons(phoneBdToPhoneDto(userBd.getPhones())) 
+				.build();
+		
+		return userDto;
+			
+	}
 	
-    List<UserDto> listUsersEntityToListUserDto(List<UsersEntity> listUser);
-    
-    UserDto usersEntityTouserDto(UsersEntity userSoruce);
 	
-	ResponseCreateUser usersEntityToResponseUser(UsersEntity usersEntity);
-
+	public List<UserDto> listUsersEntityToListUserDto(List<UsersEntity> listUser){
+		
+			List<UserDto> listUserDto =  listUser.stream().map(userBd -> UserDto.builder()
+			.idUser(userBd.getIdUser())
+			.name(userBd.getName())
+			.email(userBd.getEmail())
+			.lastLogin(userBd.getLastLogin())
+			.modified(userBd.getModified())
+			.created(userBd.getCreated())
+			.isActive(userBd.getIsActive())
+			.token(userBd.getToken())
+			.phons(phoneBdToPhoneDto(userBd.getPhones())) 
+			.build()
+			).collect(Collectors.toList());
+			
+			return listUserDto;
+	}
+		
+	
+	public ResponseCreateUser usersEntityToResponseCreateUser(UsersEntity userSave) {
+	
+	ResponseCreateUser responseUser = ResponseCreateUser.builder()
+			.idUser(userSave.getIdUser())
+			.isActive(userSave.getIsActive())
+			.lastLogin(userSave.getLastLogin())
+			.modified(userSave.getModified())
+			.created(userSave.getCreated())
+			.token(userSave.getToken())
+			.build();
+	
+	return responseUser;
+	
+	}
 }

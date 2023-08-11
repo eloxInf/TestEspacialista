@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.constraints.NotEmpty;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -11,6 +12,7 @@ import lombok.Data;
  *
  */
 @Data
+@Builder
 public class RequestUpdateUser {
 	@NotEmpty
     private String idUser;

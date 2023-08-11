@@ -1,6 +1,5 @@
 package cl.rest.especialista.integracion.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import cl.rest.especialista.integracion.dto.PhoneDto;
 import cl.rest.especialista.integracion.dto.PhoneUpdateDto;
 import cl.rest.especialista.integracion.dto.RequestUpdateUser;
 import cl.rest.especialista.integracion.dto.RequestUser;
@@ -61,24 +59,20 @@ public class UserService implements IUserServices {
 	 */
 	@Override
 	@Transactional
-	public ResponseCreateUser createUser(RequestUser userData) throws EmailExistException, GenericException {
+	public ResponseCreateUser createUser(RequestUser requestUser) throws EmailExistException, GenericException {
 
-		if (userRepository.findByEmail(userData.getEmail()).isPresent()) {
-			throw new EmailExistException("Correo ya existe en otro usuario");
-
-		}
+		userRepository.findByEmail(requestUser.getEmail()).ifPresent(user -> {
+		    throw new EmailExistException("Correo ya existe en otro usuario");
+		});
 
 		try {
-
-			UsersEntity usersEntity = setDataCreateUser(userData);
-
-			List<UsersPhoneEntity> listPhone = setDataPhone(userData.getPhones(), usersEntity);
+			
+			UsersEntity usersEntity = setDataCreateUser(requestUser);
+			List<UsersPhoneEntity> listPhone = userMapper.listPhoneDtoToUsersListPhoneEntity(requestUser.getPhones(), usersEntity);
 			usersEntity.setPhones(listPhone);
-
 			UsersEntity userSave = userRepository.save(usersEntity);
-			ResponseCreateUser responseUser = userMapper.usersEntityToResponseUser(userSave);
-
-			return responseUser;
+			
+			return userMapper.usersEntityToResponseCreateUser(userSave);
 
 		} catch (Exception e) {
 			log.error("[UserService]-[createUser] error : " + e.getMessage());
@@ -94,16 +88,17 @@ public class UserService implements IUserServices {
 	@Override
 	public Boolean checkEmailAndPass(String user, String pass) {
 
-		Boolean exist = false;
+		boolean exist = false;
 
 		try {
-			exist = userRepository.existsByEmailAndPass(user, pass);
+			exist = userRepository.existsByEmailAndPass(user, pass).isPresent();
 		} catch (Exception e) {
 			log.error("[UserService]-[checkUserPass] error : ", e.getMessage());
 			TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
 			throw new GenericException("Internal Error");
 
 		}
+		
 		return exist;
 	}
 
@@ -112,14 +107,15 @@ public class UserService implements IUserServices {
 	 */
 	@Override
 	public Boolean updateLastLogin(String idUser, String token, Date loginDate) {
-		UsersEntity user;
 
-		user = findUserByEmail(idUser);
+		
+		Optional<UsersEntity> userFind = userRepository.findById(idUser);
+		userFind.orElseThrow(() -> new UserNotFoundException("Usuario no existe"));
 
 		try {
-			user.setToken(idUser);
-			user.setLastLogin(loginDate);
-			userRepository.save(user);
+			userFind.get().setToken(idUser);
+			userFind.get().setLastLogin(loginDate);
+			userRepository.save(userFind.get());
 
 		} catch (Exception e) {
 			log.error("[UserService]-[updateLastLogin] error : ", e.getMessage());
@@ -131,52 +127,7 @@ public class UserService implements IUserServices {
 
 	}
 
-	/**
-	 * @param idUser
-	 * @return
-	 */
-	private UsersEntity findUserById(String idUser) {
-		Optional<UsersEntity> userFind;
-		try {
 
-			userFind = userRepository.findById(idUser);
-
-
-		} catch (Exception e) {
-			log.error("[UserService]-[findUserByEmail] error : ", e.getMessage());
-			throw new GenericException("Internal Error");
-
-		}
-		
-		if (!userFind.isPresent())
-			throw new UserNotFoundException("Usuario no existe");
-
-		return userFind.get();
-
-	}
-
-	/**
-	 * @param email
-	 * @return
-	 */
-	private UsersEntity findUserByEmail(String email) {
-		Optional<UsersEntity> userFind;
-		try {
-
-			userFind = userRepository.findByEmail(email);
-
-			if (!userFind.isPresent())
-				throw new UserNotFoundException("Usuario no existe");
-
-		} catch (Exception e) {
-			log.error("[UserService]-[findUserByEmail] error : ", e.getMessage());
-			throw new GenericException("Internal Error");
-
-		}
-
-		return userFind.get();
-
-	}
 
 	/**
 	 * Elimina el usuario.
@@ -185,18 +136,12 @@ public class UserService implements IUserServices {
 	public ResponseGeneric deleteUser(String idUser) {
 
 		Optional<UsersEntity> userDelete = userRepository.findById(idUser);
+		userDelete.orElseThrow(() -> new UserNotFoundException("Usuario no existe"));
 
-		if (!userDelete.isPresent()) {
-			throw new UserNotFoundException("Usuario no existe");
-
-		}
 		try {
 
-			ResponseGeneric response = new ResponseGeneric();
-			response.setMessage("ok");
-
 			userRepository.delete(userDelete.get());
-			return response;
+			return ResponseGeneric.builder().message("Ok").build();
 		} catch (Exception e) {
 			log.error("[UserService]-[deleteUser] error : ", e.getMessage());
 			throw new GenericException("Internal Error");
@@ -210,23 +155,12 @@ public class UserService implements IUserServices {
 	 */
 	@Override
 	public ResponseListUser getAllUser() {
-		ResponseListUser response = new ResponseListUser();
 
 		List<UsersEntity> listUser = userRepository.findAll();
+		List<UserDto> listUserDto = userMapper.listUsersEntityToListUserDto(listUser);
+		
+		return (ResponseListUser.builder().userData(listUserDto).build());
 
-		List<UserDto> listUserDto = new ArrayList<>();
-		for (UsersEntity user : listUser) {
-
-			UserDto userDto = userMapper.usersEntityTouserDto(user);
-			List<PhoneDto> listphone = userMapper.listUsersPhoneEntityToListPhoneDto(user.getPhones());
-			userDto.setPhons(listphone);
-
-			listUserDto.add(userDto);
-		}
-
-		response.setUserData(listUserDto);
-
-		return response;
 	}
 
 	/**
@@ -234,16 +168,16 @@ public class UserService implements IUserServices {
 	 */
 	@Override
 	public UserDto getOneUser(String idUser) {
-		UsersEntity userFind = findUserById(idUser);
-
-		UserDto userDto = userMapper.usersEntityTouserDto(userFind);
-		List<PhoneDto> listphone = userMapper.listUsersPhoneEntityToListPhoneDto(userFind.getPhones());
-
-		userDto.setPhons(listphone);
-
+		
+		Optional<UsersEntity> userFind =  userRepository.findById(idUser);	
+		userFind.orElseThrow(()-> new UserNotFoundException("Usuario no existe"));
+		
+		UserDto userDto = userMapper.userBdToUserDto(userFind.get());
 		return userDto;
 
 	}
+	
+
 	
 
 	/**
@@ -252,40 +186,20 @@ public class UserService implements IUserServices {
 	@Override
 	@Transactional
 	public ResponseGeneric updateUser(RequestUpdateUser userRequest) {
-
-		ResponseGeneric response = new ResponseGeneric();
-		response.setMessage("ok");
-
-		Optional<UsersEntity> userFind = userRepository.findById(userRequest.getIdUser());
 		
-
-		if (!userFind.isPresent()) {
-			throw new UserNotFoundException("Usuario no existe");
-
-		}
-		
-		// TODO validar que el mail no exista en otro usuario.
+		Optional<UsersEntity> userFind = userRepository.findById(userRequest.getIdUser());	
+		userFind.orElseThrow(() -> new UserNotFoundException("Usuario no existe"));
 
 		try {
 
 			UsersEntity userToUpdate = userFind.get();
 
-			List<UsersPhoneEntity> actualPhone = userToUpdate.getPhones();
-			List<PhoneUpdateDto> requestPhone = userRequest.getPhons();
-
-
-			newPhone(actualPhone, requestPhone, userToUpdate);
-			updatePhone(actualPhone, requestPhone);
-			deletePhone(actualPhone, requestPhone);
-			
+			userToUpdate.setName(userRequest.getName());
 			userToUpdate.setEmail(userRequest.getEmail());
 			userToUpdate.setIsActive(userRequest.isActive());
-
 			userToUpdate = userRepository.save(userToUpdate);
-			userRepository.flush();
-
-
-
+			
+			updateUserPhone(userToUpdate, userRequest );
 
 		} catch (Exception e) {
 			log.error("[UserService]-[updateUser] error : ", e.getMessage());
@@ -293,7 +207,21 @@ public class UserService implements IUserServices {
 
 		}
 
-		return response;
+		return ResponseGeneric.builder().message("ok").build();
+	}
+	
+	
+	/**
+	 * @param userToUpdate
+	 * @param userRequest
+	 */
+	private void updateUserPhone(UsersEntity userToUpdate, RequestUpdateUser userRequest) {
+		List<UsersPhoneEntity> actualPhone = userToUpdate.getPhones();
+		List<PhoneUpdateDto> requestPhone = userRequest.getPhons();
+		
+		newPhone(actualPhone, requestPhone, userToUpdate);
+		updatePhone(actualPhone, requestPhone);
+		deletePhone(actualPhone, requestPhone);
 	}
 
 
@@ -301,44 +229,29 @@ public class UserService implements IUserServices {
 	 * @param userData
 	 * @return
 	 */
-	private UsersEntity setDataCreateUser(RequestUser userData) {
+	private UsersEntity setDataCreateUser(RequestUser requestUser) {
+
 
 		Map<String, Object> propertyUser = new HashMap<String, Object>();
 		propertyUser.put("typeUser", "SA");
 
-		String token = securityService.createToken(propertyUser, userData.getName());
-
-		UsersEntity usersEntity = userMapper.requestUserToUsersEntity(userData);
-
-		String id = CommonUtil.generateUUID();
-		usersEntity.setIdUser(id);
-		usersEntity.setToken(token);
-
+		String token = securityService.createToken(propertyUser, requestUser.getName());
+		
 		Date dateNew = new Date();
+		
+		UsersEntity userToCreate = UsersEntity.builder()
+		.name(requestUser.getName())
+		.pass(requestUser.getPassword())
+		.email(requestUser.getEmail())
+		.idUser(CommonUtil.generateUUID())
+		.token(token)
+		.modified(dateNew)
+		.created(dateNew)
+		.lastLogin(dateNew)
+		.isActive(true)
+		.build();
 
-		usersEntity.setCreated(dateNew);
-		usersEntity.setLastLogin(dateNew);
-		usersEntity.setModified(dateNew);
-
-		usersEntity.setIsActive(true);
-
-		return usersEntity;
-	}
-
-	/**
-	 * @param listPhoneDto
-	 * @param userSave
-	 * @return
-	 */
-	private List<UsersPhoneEntity> setDataPhone(ArrayList<PhoneDto> listPhoneDto, UsersEntity userSave) {
-		List<UsersPhoneEntity> listPhone = new ArrayList<>();
-		for (PhoneDto phone : listPhoneDto) {
-			UsersPhoneEntity phoneEnty = userMapper.phoneDtoToUsersPhoneEntity(phone);
-			phoneEnty.setUser(userSave);
-			listPhone.add(phoneEnty);
-		}
-
-		return listPhone;
+		return userToCreate;
 	}
 
 	

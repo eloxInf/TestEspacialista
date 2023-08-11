@@ -11,7 +11,12 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.validator.constraints.NotBlank;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author avenegas
@@ -20,35 +25,38 @@ import lombok.Data;
 @Entity
 @Table(name = "tb_Users")
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class UsersEntity {
 	@Id
 	@Column(name ="id_user")
 	private String idUser;
 	
-	@Column(name ="name")
+	@Column(name ="name", nullable = false, length = 100)
 	private String name;
 	
-	@Column(name ="email")
+	@Column(name ="email" , nullable = false, length = 100)
 	private String email;
 	
-	@Column(name ="created")
+	@Column(name ="created", nullable = false)
 	private Date created;
 	
-	@Column(name ="modified")
+	@Column(name ="modified", nullable = false)
 	private Date modified;
 	
-	@Column(name ="lastLogin")
+	@Column(name ="lastLogin", nullable = false)
 	private Date lastLogin;
 	
-	@Column(name ="token")
+	@Column(name ="token", nullable = false)
 	private String token;
 	
-	@Column(name ="pass")
+	@Column(name ="pass", nullable = false)
 	private String pass;
 	
-	@Column(name ="isActive")
+	@Column(name ="isActive", nullable = false)
 	private Boolean isActive;
 	
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<UsersPhoneEntity> phones;
 }

@@ -1,5 +1,6 @@
 package cl.rest.especialista.integracion.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -7,6 +8,7 @@ import lombok.Data;
  *
  */
 @Data
+@Builder
 public class PhoneUpdateDto {
 	private String id;
     private String number;

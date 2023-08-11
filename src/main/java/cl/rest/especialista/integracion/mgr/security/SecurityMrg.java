@@ -48,6 +48,7 @@ public class SecurityMrg implements ISecurity {
      * @param pass
      */
     public void validateUserPass(String user, String pass) {
+    	
     	Boolean exist = userServices.checkEmailAndPass(user, pass);
     	
     	if(!exist) {

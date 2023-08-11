@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -11,6 +12,7 @@ import lombok.Data;
  *
  */
 @Data
+@Builder
 public class ResponseCreateUser {
 	private String idUser;
 	@JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", timezone = "UTC")
