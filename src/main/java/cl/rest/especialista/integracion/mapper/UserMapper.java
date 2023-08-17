@@ -1,6 +1,6 @@
 package cl.rest.especialista.integracion.mapper;
 
-import java.util.List;
+import java.util.List;import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import cl.rest.especialista.integracion.dto.PhoneDto;
 import cl.rest.especialista.integracion.dto.ResponseCreateUser;
 import cl.rest.especialista.integracion.dto.UserDto;
+import cl.rest.especialista.integracion.entity.ERole;
+import cl.rest.especialista.integracion.entity.RoleEntity;
 import cl.rest.especialista.integracion.entity.UsersEntity;
 import cl.rest.especialista.integracion.entity.UsersPhoneEntity;
 
@@ -16,6 +18,9 @@ public class UserMapper {
 
 	
 	
+	public List<RoleEntity> listRole(List<String> roles) {
+		return roles.stream().map(role -> RoleEntity.builder().name(ERole.valueOf(role)).build()).collect(Collectors.toList());
+	}
 	
 	public List<UsersPhoneEntity> listPhoneDtoToUsersListPhoneEntity(List<PhoneDto> list, UsersEntity userSave){
 		List<UsersPhoneEntity> listPhoneEntity = list.stream()

@@ -37,6 +37,9 @@ public class RequestUser {
     private String password;
 	
 	@NotEmpty
+	private List<String> role;
+	
+	@NotEmpty
 	@Valid
     private List<PhoneDto> phones;
 }
