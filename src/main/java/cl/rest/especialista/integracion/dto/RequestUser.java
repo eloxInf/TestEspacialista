@@ -37,7 +37,7 @@ public class RequestUser {
     private String password;
 	
 	@NotEmpty
-	private List<String> role;
+	private List<String> roles;
 	
 	@NotEmpty
 	@Valid

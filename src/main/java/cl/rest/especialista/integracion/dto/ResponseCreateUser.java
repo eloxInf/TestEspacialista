@@ -1,6 +1,7 @@
 package cl.rest.especialista.integracion.dto;
 
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -23,5 +24,6 @@ public class ResponseCreateUser {
 	private Date lastLogin;
 	private String token;
 	private Boolean isActive;
+	private List<String> roles;
 
 }

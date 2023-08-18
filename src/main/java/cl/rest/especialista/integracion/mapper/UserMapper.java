@@ -18,7 +18,8 @@ public class UserMapper {
 
 	
 	
-	public List<RoleEntity> listRole(List<String> roles) {
+	public List<RoleEntity> listRoleToEntity(List<String> roles) {
+		
 		return roles.stream().map(role -> RoleEntity.builder().name(ERole.valueOf(role)).build()).collect(Collectors.toList());
 	}
 	
@@ -88,6 +89,12 @@ public class UserMapper {
 		
 	
 	public ResponseCreateUser usersEntityToResponseCreateUser(UsersEntity userSave) {
+		
+		
+	List<String> roles =userSave.getRoles().stream()
+			.map( RoleEntity::getName)
+			.map( ERole::toString)
+			.collect(Collectors.toList());
 	
 	ResponseCreateUser responseUser = ResponseCreateUser.builder()
 			.idUser(userSave.getIdUser())
@@ -96,6 +103,7 @@ public class UserMapper {
 			.modified(userSave.getModified())
 			.created(userSave.getCreated())
 			.token(userSave.getToken())
+			.roles(roles)
 			.build();
 	
 	return responseUser;

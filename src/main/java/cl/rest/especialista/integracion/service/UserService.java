@@ -70,8 +70,8 @@ public class UserService implements IUserServices {
 			UsersEntity usersEntity = setDataCreateUser(requestUser);
 			List<UsersPhoneEntity> listPhone = userMapper.listPhoneDtoToUsersListPhoneEntity(requestUser.getPhones(), usersEntity);
 			usersEntity.setPhones(listPhone);
+			usersEntity.setRoles(userMapper.listRoleToEntity(requestUser.getRoles()));
 			UsersEntity userSave = userRepository.save(usersEntity);
-			userSave.setRoles(userMapper.listRole(requestUser.getRole()));
 			return userMapper.usersEntityToResponseCreateUser(userSave);
 
 		} catch (Exception e) {

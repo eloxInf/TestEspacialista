@@ -1,5 +1,6 @@
 package cl.rest.especialista.integracion.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -23,9 +24,11 @@ public class RoleEntity {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY )
-	private long id;
+	@Column(name = "id_role")
+	private long idRole;
 	
 	@Enumerated(EnumType.STRING)
+	@Column(name = "name_role")
 	private ERole name;
 
 }
