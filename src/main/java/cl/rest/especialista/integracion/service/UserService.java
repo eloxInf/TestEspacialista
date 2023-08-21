@@ -12,6 +12,7 @@ import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
@@ -53,6 +54,9 @@ public class UserService implements IUserServices {
 
 	@Autowired
 	private ISecurityService securityService;
+	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	/**
 	 * Crea el usuario
@@ -241,7 +245,7 @@ public class UserService implements IUserServices {
 		
 		UsersEntity userToCreate = UsersEntity.builder()
 		.name(requestUser.getName())
-		.pass(requestUser.getPassword())
+		.pass(passwordEncoder.encode(requestUser.getPassword()))
 		.email(requestUser.getEmail())
 		.idUser(CommonUtil.generateUUID())
 		.token(token)

@@ -45,6 +45,7 @@ public class UserController {
 	@Autowired
 	private IUserMgr userMrg;
 
+	/*
 	@Autowired
 	private SessionRegistry sessionRegistry;
 
@@ -77,6 +78,7 @@ public class UserController {
 		return ResponseEntity.ok(responseData);
 
 	}
+	*/
 
 	@PostMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<ResponseCreateUser> createUser(@Valid @RequestBody RequestUser userData,
