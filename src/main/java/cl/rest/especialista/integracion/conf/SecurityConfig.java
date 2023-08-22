@@ -1,5 +1,6 @@
 package cl.rest.especialista.integracion.conf;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -10,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -19,9 +19,19 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+	
+	@Autowired
+	UserDetailsServiceImpl userServiceImpl;
+	
+	@Autowired
+	JwtUtils jwtUtils;
 
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+	public SecurityFilterChain filterChain(HttpSecurity httpSecurity, AuthenticationManager autenAuthenticationManager) throws Exception {
+		
+		JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtUtils);
+		jwtAuthenticationFilter.setAuthenticationManager(autenAuthenticationManager);
+		jwtAuthenticationFilter.setFilterProcessesUrl("/login");
 		
 		return httpSecurity
 				.csrf().disable()
@@ -33,11 +43,12 @@ public class SecurityConfig {
 				.sessionManagement( session -> {
 					session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);	
 				})
-				.httpBasic()
-				.and()
+				.addFilter(jwtAuthenticationFilter)
+				//.httpBasic()
 				.build();
 	}
 	
+	/*
 	@Bean
 	UserDetailsService userDetailsService() {
 		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
@@ -48,7 +59,7 @@ public class SecurityConfig {
 		
 		return manager;
 		
-	}
+	}*/
 	
 	@Bean
 	PasswordEncoder passwordEncoder() {
@@ -61,7 +72,7 @@ public class SecurityConfig {
 	AuthenticationManager authenticationManager(HttpSecurity httpSecurity, PasswordEncoder passwordEncoder) throws Exception {
 		
 		return httpSecurity.getSharedObject(AuthenticationManagerBuilder.class)
-				.userDetailsService(userDetailsService())
+				.userDetailsService(userServiceImpl)
 				.passwordEncoder(passwordEncoder)
 				.and().build();
 		

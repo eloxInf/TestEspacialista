@@ -1,6 +1,5 @@
 package cl.rest.especialista.integracion.conf;
 
-import java.awt.RenderingHints.Key;
 import java.util.Date;
 import java.util.function.Function;
 
@@ -34,7 +33,6 @@ public class JwtUtils {
 	}
 
 	public Boolean isTokenValid(String token) {
-
 		try {
 			Jwts.parser().setSigningKey(getSignaturekey()).parseClaimsJws(token).getBody();
 			return true;

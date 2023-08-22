@@ -214,6 +214,10 @@ public class UserService implements IUserServices {
 		return ResponseGeneric.builder().message("ok").build();
 	}
 	
+	public void getUserByEmail() {
+		
+	}
+	
 	
 	/**
 	 * @param userToUpdate
