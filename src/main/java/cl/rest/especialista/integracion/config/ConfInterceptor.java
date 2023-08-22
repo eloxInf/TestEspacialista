@@ -1,4 +1,4 @@
-package cl.rest.especialista.integracion.conf;
+package cl.rest.especialista.integracion.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

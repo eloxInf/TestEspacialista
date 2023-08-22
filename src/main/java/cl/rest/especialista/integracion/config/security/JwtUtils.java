@@ -1,4 +1,4 @@
-package cl.rest.especialista.integracion.conf;
+package cl.rest.especialista.integracion.config.security;
 
 import java.util.Date;
 import java.util.function.Function;

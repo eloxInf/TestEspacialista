@@ -1,4 +1,4 @@
-package cl.rest.especialista.integracion.conf;
+package cl.rest.especialista.integracion.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
