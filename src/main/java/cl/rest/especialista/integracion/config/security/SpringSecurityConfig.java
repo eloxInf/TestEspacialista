@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -34,7 +34,7 @@ public class SpringSecurityConfig {
 		
 		JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtUtils);
 		jwtAuthenticationFilter.setAuthenticationManager(autenAuthenticationManager);
-		jwtAuthenticationFilter.setFilterProcessesUrl("/login");
+		jwtAuthenticationFilter.setFilterProcessesUrl("/security/v1/login");
 		
 		return httpSecurity
 				.csrf().disable()
@@ -52,6 +52,24 @@ public class SpringSecurityConfig {
 				.build();
 	}
 	
+
+	@Bean
+	PasswordEncoder passwordEncoder() {
+		//return NoOpPasswordEncoder.getInstance();	
+		
+		return new BCryptPasswordEncoder();
+	}
+	
+	@Bean
+	AuthenticationManager authenticationManager(HttpSecurity httpSecurity, PasswordEncoder passwordEncoder) throws Exception {
+		
+		return httpSecurity.getSharedObject(AuthenticationManagerBuilder.class)
+				.userDetailsService(userServiceImpl)
+				.passwordEncoder(passwordEncoder)
+				.and().build();
+		
+	}
+	
 	/*
 	@Bean
 	UserDetailsService userDetailsService() {
@@ -65,22 +83,6 @@ public class SpringSecurityConfig {
 		
 	}*/
 	
-	@Bean
-	PasswordEncoder passwordEncoder() {
-		return NoOpPasswordEncoder.getInstance();	
-		
-		//return new BCryptPasswordEncoder();
-	}
-	
-	@Bean
-	AuthenticationManager authenticationManager(HttpSecurity httpSecurity, PasswordEncoder passwordEncoder) throws Exception {
-		
-		return httpSecurity.getSharedObject(AuthenticationManagerBuilder.class)
-				.userDetailsService(userServiceImpl)
-				.passwordEncoder(passwordEncoder)
-				.and().build();
-		
-	}
 	
 	/*
 	@Bean // Autenticacion Basica

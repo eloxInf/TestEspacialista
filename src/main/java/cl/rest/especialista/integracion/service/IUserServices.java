@@ -27,4 +27,6 @@ public interface IUserServices {
 
 	ResponseGeneric updateUser(RequestUpdateUser userUpdate);
 
+	void createAdminUser();
+
 }

@@ -3,11 +3,27 @@ package cl.rest.especialista.integracion.util;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 
+import cl.rest.especialista.integracion.errors.RequestDataException;
+
 /**
  * @author avenegas
  *
  */
 public class ErrorUtil {
+	
+	
+	
+	/**
+	 * @param requestUser
+	 * @param errors
+	 */
+	public static void validateError(BindingResult errors) {	
+		String errorsDetail = ErrorUtil.getDetailError(errors);
+
+		if(!errorsDetail.isEmpty()) {	
+			throw new RequestDataException(errorsDetail);
+		}
+	}
 	
 	
 	/**

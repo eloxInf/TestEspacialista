@@ -1,5 +1,6 @@
 package cl.rest.especialista.integracion.service;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,8 +10,6 @@ import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +22,8 @@ import cl.rest.especialista.integracion.dto.ResponseCreateUser;
 import cl.rest.especialista.integracion.dto.ResponseGeneric;
 import cl.rest.especialista.integracion.dto.ResponseListUser;
 import cl.rest.especialista.integracion.dto.UserDto;
+import cl.rest.especialista.integracion.entity.ERole;
+import cl.rest.especialista.integracion.entity.RoleEntity;
 import cl.rest.especialista.integracion.entity.UsersEntity;
 import cl.rest.especialista.integracion.entity.UsersPhoneEntity;
 import cl.rest.especialista.integracion.errors.EmailExistException;
@@ -32,15 +33,16 @@ import cl.rest.especialista.integracion.mapper.UserMapper;
 import cl.rest.especialista.integracion.repository.PhoneRepository;
 import cl.rest.especialista.integracion.repository.UserRepository;
 import cl.rest.especialista.integracion.util.CommonUtil;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author avenegas
  *
  */
+@Slf4j
 @Service
 public class UserService implements IUserServices {
 
-	protected static final Logger log = LoggerFactory.getLogger(UserService.class);
 
 	@Autowired
 	private UserRepository userRepository;
@@ -51,13 +53,32 @@ public class UserService implements IUserServices {
 	@Autowired
 	private UserMapper userMapper;
 
-	/*
-	@Autowired
-	private ISecurityService securityService;
-	*/
-	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	@Override
+	public void createAdminUser() {
+		
+		Date dateNew = new Date();
+		List<String> listRole = Arrays.asList("ADMIN","INVITED", "EDITOR", "USER");
+		
+
+		UsersEntity usersEntity = UsersEntity.builder()
+								  .idUser(CommonUtil.generateUUID())
+								  .pass(passwordEncoder.encode("Just21"))
+								  .name("administrador")
+								  .created(dateNew)
+								  .modified(dateNew)
+								  .email("admin@admin.com")
+								  .token("")
+								  .isActive(true)
+								  .lastLogin(dateNew)
+								  .roles(listRole.stream().map(role -> RoleEntity.builder().name(ERole.valueOf(role)).build()).collect(Collectors.toList()))
+								  .build();
+		
+		userRepository.save(usersEntity);
+		
+	}
 
 	/**
 	 * Crea el usuario
@@ -182,9 +203,6 @@ public class UserService implements IUserServices {
 
 	}
 	
-
-	
-
 	/**
 	 * Actualiza un usuario y sus telefonos.
 	 */
@@ -214,12 +232,7 @@ public class UserService implements IUserServices {
 
 		return ResponseGeneric.builder().message("ok").build();
 	}
-	
-	public void getUserByEmail() {
 		
-	}
-	
-	
 	/**
 	 * @param userToUpdate
 	 * @param userRequest

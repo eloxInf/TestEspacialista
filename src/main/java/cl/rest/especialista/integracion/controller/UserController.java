@@ -38,11 +38,9 @@ import io.swagger.annotations.Api;
 @RequestMapping(value = "especialista/v1")
 public class UserController {
 
-	//@Autowired
-	//private IUserMgr userMrg;
-	
 	@Autowired
 	private IUserServices userServices;
+	
 
 	/*
 	@Autowired
@@ -80,15 +78,17 @@ public class UserController {
 	*/
 
 	@PostMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<ResponseCreateUser> createUser(@Valid @RequestBody RequestUser userData,
 			BindingResult errors) {
 		
-		validateError(errors);
+		ErrorUtil.validateError(errors);
 		ResponseCreateUser response = userServices.createUser(userData);
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
 	@GetMapping(value = "/users")
+	@PreAuthorize("hasRole('ADMIN','EDITOR', 'USER')")
 	public ResponseEntity<ResponseListUser> getAllUser() {
 
 		ResponseListUser response = userServices.getAllUser();
@@ -96,6 +96,7 @@ public class UserController {
 	}
 
 	@GetMapping(value = "/user/{idUser}")
+	@PreAuthorize("hasRole('ADMIN','EDITOR', 'USER')")
 	public ResponseEntity<UserDto> getUser(@RequestHeader("Authorization") String token, @PathVariable String idUser) {
 
 		UserDto response = userServices.getOneUser(idUser);
@@ -114,27 +115,16 @@ public class UserController {
 	}
 
 	@PutMapping(value = "/user")
+	@PreAuthorize("hasRole('ADMIN','EDITOR')")
 	public ResponseEntity<ResponseGeneric> updateUser(
 			 @RequestBody RequestUpdateUser userUpdate, 
 			BindingResult errors) {
 		
-		validateError(errors);
+		ErrorUtil.validateError(errors);
 		ResponseGeneric response = userServices.updateUser(userUpdate);
 
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
-	
-	
-	/**
-	 * @param requestUser
-	 * @param errors
-	 */
-	private void validateError(BindingResult errors) {	
-		String errorsDetail = ErrorUtil.getDetailError(errors);
 
-		if(!errorsDetail.isEmpty()) {	
-			throw new RequestDataException(errorsDetail);
-		}
-	}
 
 }

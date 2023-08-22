@@ -8,16 +8,15 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class ConfInterceptor implements WebMvcConfigurer {
+public class InterceptorConfig implements WebMvcConfigurer {
 
-	/*
+	
 	@Autowired
-	@Qualifier("token")
-	private HandlerInterceptor token;
+	@Qualifier("generic")
+	private HandlerInterceptor generic;
 	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(token).excludePathPatterns("");
+		registry.addInterceptor(generic).excludePathPatterns("");
 	}
-	*/
 }

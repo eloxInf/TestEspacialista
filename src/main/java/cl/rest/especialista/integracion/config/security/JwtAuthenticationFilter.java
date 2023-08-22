@@ -17,8 +17,12 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 	private JwtUtils jwtUtils;
@@ -37,12 +41,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		String password ="";
 		
 		try {		
-			 Map<String, String> authData  = new ObjectMapper().readValue(request.getInputStream(), Map.class);	
+			 Map<String, String> authData = new ObjectMapper().readValue(request.getInputStream(), new TypeReference<Map<String, String>>() {});
 			 
 			 username = authData.get("username");
 		     password = authData.get("password");	
 		     	
 		} catch (Exception e) {
+			log.error("JwtAuthenticationFilter - attemptAuthentication" + e);
 			throw new RuntimeException(e);
 		}
 		
