@@ -10,6 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class ConfInterceptor implements WebMvcConfigurer {
 
+	/*
 	@Autowired
 	@Qualifier("token")
 	private HandlerInterceptor token;
@@ -18,4 +19,5 @@ public class ConfInterceptor implements WebMvcConfigurer {
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(token).excludePathPatterns("");
 	}
+	*/
 }

@@ -243,7 +243,7 @@ public class UserService implements IUserServices {
 		Map<String, Object> propertyUser = new HashMap<String, Object>();
 		propertyUser.put("typeUser", "SA");
 
-		String token = securityService.createToken(propertyUser, requestUser.getName());
+		//String token = securityService.createToken(propertyUser, requestUser.getName());
 		
 		Date dateNew = new Date();
 		
@@ -252,7 +252,7 @@ public class UserService implements IUserServices {
 		.pass(passwordEncoder.encode(requestUser.getPassword()))
 		.email(requestUser.getEmail())
 		.idUser(CommonUtil.generateUUID())
-		.token(token)
+		.token("")
 		.modified(dateNew)
 		.created(dateNew)
 		.lastLogin(dateNew)

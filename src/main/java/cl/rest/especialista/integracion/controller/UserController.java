@@ -3,6 +3,7 @@ package cl.rest.especialista.integracion.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -10,6 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.User;
@@ -89,7 +95,7 @@ public class UserController {
 	}
 
 	@GetMapping(value = "/users")
-	public ResponseEntity<ResponseListUser> getAllUser(@RequestHeader("Authorization") String token) {
+	public ResponseEntity<ResponseListUser> getAllUser() {
 
 		ResponseListUser response = userMrg.getAllUser();
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -104,8 +110,16 @@ public class UserController {
 	}
 
 	@DeleteMapping(value = "/user/{idUser}")
-	public ResponseEntity<ResponseGeneric> deleteUser(@RequestHeader("Authorization") String token,
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<ResponseGeneric> deleteUser(
 			@PathVariable String idUser) {
+		
+		
+	     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	        List<String> roles = authentication.getAuthorities()
+	                .stream()
+	                .map(GrantedAuthority::getAuthority)
+	                .collect(Collectors.toList());
 
 		ResponseGeneric response = userMrg.deleteUser(idUser);
 
@@ -114,7 +128,7 @@ public class UserController {
 
 	@PutMapping(value = "/user")
 	public ResponseEntity<ResponseGeneric> updateUser(
-			@RequestHeader("Authorization") @RequestBody RequestUpdateUser userUpdate, String token,
+			 @RequestBody RequestUpdateUser userUpdate, 
 			BindingResult errors) {
 
 		ResponseGeneric response = userMrg.updateUser(userUpdate, errors);
