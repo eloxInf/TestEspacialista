@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
  *
  */
 @Entity
-@Table(name = "tb_Users")
+@Table(name = "TB_USERS")
 @Data
 @Builder
 @AllArgsConstructor
@@ -62,6 +62,6 @@ public class UsersEntity {
     private List<UsersPhoneEntity> phones;
 	
 	@ManyToMany(fetch = FetchType.EAGER, targetEntity = RoleEntity.class, cascade = CascadeType.ALL)
-	@JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name= "role_id"))
+	@JoinTable(name = "TB_USER_ROLE", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name= "role_id"))
 	private List<RoleEntity> roles;
 }

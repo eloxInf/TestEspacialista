@@ -31,7 +31,6 @@ import cl.rest.especialista.integracion.errors.UserNotFoundException;
 import cl.rest.especialista.integracion.mapper.UserMapper;
 import cl.rest.especialista.integracion.repository.PhoneRepository;
 import cl.rest.especialista.integracion.repository.UserRepository;
-import cl.rest.especialista.integracion.service.security.ISecurityService;
 import cl.rest.especialista.integracion.util.CommonUtil;
 
 /**
@@ -52,8 +51,10 @@ public class UserService implements IUserServices {
 	@Autowired
 	private UserMapper userMapper;
 
+	/*
 	@Autowired
 	private ISecurityService securityService;
+	*/
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;

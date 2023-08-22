@@ -26,6 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		
 		
 		UsersEntity userEntity = userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("usuario no encontrado"));
+		
 		Collection<? extends GrantedAuthority> autoriAuthorities = userEntity.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_".concat(role.getName().name())))
 				.collect(Collectors.toSet());
 		
@@ -38,7 +39,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 				autoriAuthorities
 				);
 	}
-	
 	
 
 }

@@ -3,18 +3,14 @@ package cl.rest.especialista.integracion.interceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-
-import cl.rest.especialista.integracion.errors.TokenException;
-import cl.rest.especialista.integracion.service.security.ISecurityService;
 
 @Component("token")
 public class TokenInterceptor implements HandlerInterceptor {
 
-	@Autowired
-	private ISecurityService securityService;
+	//@Autowired
+	//private ISecurityService securityService;
 	
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -52,12 +48,14 @@ public class TokenInterceptor implements HandlerInterceptor {
 	 */
 	private void checkIsValidToken(String token) {
 		
+		/*
 		boolean status = securityService.isValidToken(token);
 		
 		if(!status) {
 			
 			throw new TokenException("Error en token");
 		}
+		*/
 		
 	}
 }

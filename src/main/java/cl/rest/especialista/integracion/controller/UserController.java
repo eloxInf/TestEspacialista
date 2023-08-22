@@ -1,10 +1,5 @@
 package cl.rest.especialista.integracion.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +24,9 @@ import cl.rest.especialista.integracion.dto.ResponseCreateUser;
 import cl.rest.especialista.integracion.dto.ResponseGeneric;
 import cl.rest.especialista.integracion.dto.ResponseListUser;
 import cl.rest.especialista.integracion.dto.UserDto;
-import cl.rest.especialista.integracion.mgr.IUserMgr;
+import cl.rest.especialista.integracion.errors.RequestDataException;
+import cl.rest.especialista.integracion.service.IUserServices;
+import cl.rest.especialista.integracion.util.ErrorUtil;
 import io.swagger.annotations.Api;
 
 /**
@@ -48,8 +38,11 @@ import io.swagger.annotations.Api;
 @RequestMapping(value = "especialista/v1")
 public class UserController {
 
+	//@Autowired
+	//private IUserMgr userMrg;
+	
 	@Autowired
-	private IUserMgr userMrg;
+	private IUserServices userServices;
 
 	/*
 	@Autowired
@@ -89,22 +82,23 @@ public class UserController {
 	@PostMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<ResponseCreateUser> createUser(@Valid @RequestBody RequestUser userData,
 			BindingResult errors) {
-
-		ResponseCreateUser response = userMrg.createUser(userData, errors);
+		
+		validateError(errors);
+		ResponseCreateUser response = userServices.createUser(userData);
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
 	@GetMapping(value = "/users")
 	public ResponseEntity<ResponseListUser> getAllUser() {
 
-		ResponseListUser response = userMrg.getAllUser();
+		ResponseListUser response = userServices.getAllUser();
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
 	@GetMapping(value = "/user/{idUser}")
 	public ResponseEntity<UserDto> getUser(@RequestHeader("Authorization") String token, @PathVariable String idUser) {
 
-		UserDto response = userMrg.getOneUser(idUser);
+		UserDto response = userServices.getOneUser(idUser);
 
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
@@ -113,15 +107,8 @@ public class UserController {
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<ResponseGeneric> deleteUser(
 			@PathVariable String idUser) {
-		
-		
-	     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	        List<String> roles = authentication.getAuthorities()
-	                .stream()
-	                .map(GrantedAuthority::getAuthority)
-	                .collect(Collectors.toList());
 
-		ResponseGeneric response = userMrg.deleteUser(idUser);
+		ResponseGeneric response = userServices.deleteUser(idUser);
 
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
@@ -130,10 +117,24 @@ public class UserController {
 	public ResponseEntity<ResponseGeneric> updateUser(
 			 @RequestBody RequestUpdateUser userUpdate, 
 			BindingResult errors) {
-
-		ResponseGeneric response = userMrg.updateUser(userUpdate, errors);
+		
+		validateError(errors);
+		ResponseGeneric response = userServices.updateUser(userUpdate);
 
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
+	}
+	
+	
+	/**
+	 * @param requestUser
+	 * @param errors
+	 */
+	private void validateError(BindingResult errors) {	
+		String errorsDetail = ErrorUtil.getDetailError(errors);
+
+		if(!errorsDetail.isEmpty()) {	
+			throw new RequestDataException(errorsDetail);
+		}
 	}
 
 }
