@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import cl.rest.especialista.integracion.config.security.JwtUtils;
 import cl.rest.especialista.integracion.dto.PhoneUpdateDto;
 import cl.rest.especialista.integracion.dto.RequestUpdateUser;
 import cl.rest.especialista.integracion.dto.RequestUser;
@@ -30,6 +31,7 @@ import cl.rest.especialista.integracion.mapper.UserMapper;
 import cl.rest.especialista.integracion.repository.PhoneRepository;
 import cl.rest.especialista.integracion.repository.UserRepository;
 import cl.rest.especialista.integracion.util.CommonUtil;
+import io.jsonwebtoken.Jwts;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -51,6 +53,9 @@ public class UserService implements IUserServices {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private JwtUtils jwtUtils;
 
 	@Override
 	public void createAdminUser() {
@@ -295,13 +300,13 @@ public class UserService implements IUserServices {
 	private UsersEntity setDataCreateUser(RequestUser requestUser) {
 
 		Date dateNew = new Date();
-
+		
 		UsersEntity userToCreate = UsersEntity.builder()
 				.name(requestUser.getName())
 				.pass(passwordEncoder.encode(requestUser.getPassword()))
 				.email(requestUser.getEmail())
 				.idUser(CommonUtil.generateUUID())
-				.token("")
+				.token(jwtUtils.generateAccessToken(requestUser.getEmail()))
 				.modified(dateNew)
 				.created(dateNew)
 				.lastLogin(dateNew)
