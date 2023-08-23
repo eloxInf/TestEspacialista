@@ -24,7 +24,6 @@ import cl.rest.especialista.integracion.dto.ResponseCreateUser;
 import cl.rest.especialista.integracion.dto.ResponseGeneric;
 import cl.rest.especialista.integracion.dto.ResponseListUser;
 import cl.rest.especialista.integracion.dto.UserDto;
-import cl.rest.especialista.integracion.errors.RequestDataException;
 import cl.rest.especialista.integracion.service.IUserServices;
 import cl.rest.especialista.integracion.util.ErrorUtil;
 import io.swagger.annotations.Api;
@@ -41,77 +40,34 @@ public class UserController {
 	@Autowired
 	private IUserServices userServices;
 	
-
-	/*
-	@Autowired
-	private SessionRegistry sessionRegistry;
-
-	@GetMapping("/session")
-	public ResponseEntity<?> getSession() {
-
-		String sessionId = "";
-		User userObject = null;
-
-		List<Object> sessionsList = sessionRegistry.getAllPrincipals();
-
-		for (Object session : sessionsList) {
-			if (session instanceof User) {
-				userObject = (User) session;
-			}
-
-			List<SessionInformation> sessionInformations = sessionRegistry.getAllSessions(sessionsList, false);
-			
-			for (SessionInformation sessionInformation : sessionInformations) {	
-				sessionId = sessionInformation.getSessionId();		
-			}
-			
-		}
-		
-		Map<String, Object> responseData = new HashMap<>();
-		
-		responseData.put("sessionId", sessionId);
-		responseData.put("sessionUser", userObject);
-
-		return ResponseEntity.ok(responseData);
-
-	}
-	*/
-
 	@PostMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<ResponseCreateUser> createUser(@Valid @RequestBody RequestUser userData,
 			BindingResult errors) {
 		
 		ErrorUtil.validateError(errors);
-		ResponseCreateUser response = userServices.createUser(userData);
-		return new ResponseEntity<>(response, HttpStatus.CREATED);
+		return new ResponseEntity<>(userServices.createUser(userData), HttpStatus.CREATED);
 	}
 
 	@GetMapping(value = "/users")
 	@PreAuthorize("hasRole('ADMIN','EDITOR', 'USER')")
 	public ResponseEntity<ResponseListUser> getAllUser() {
-
-		ResponseListUser response = userServices.getAllUser();
-		return new ResponseEntity<>(response, HttpStatus.CREATED);
+		return new ResponseEntity<>(userServices.getAllUser(), HttpStatus.CREATED);
 	}
 
 	@GetMapping(value = "/user/{idUser}")
 	@PreAuthorize("hasRole('ADMIN','EDITOR', 'USER')")
-	public ResponseEntity<UserDto> getUser(@RequestHeader("Authorization") String token, @PathVariable String idUser) {
-
-		UserDto response = userServices.getOneUser(idUser);
-
-		return new ResponseEntity<>(response, HttpStatus.CREATED);
+	public ResponseEntity<UserDto> getUser(@PathVariable(required = true) String idUser, BindingResult errors) {
+		ErrorUtil.validateError(errors);
+		return new ResponseEntity<>(userServices.getOneUser(idUser), HttpStatus.CREATED);
 	}
 
 	@DeleteMapping(value = "/user/{idUser}")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<ResponseGeneric> deleteUser(
 			@PathVariable String idUser) {
-
-		ResponseGeneric response = userServices.deleteUser(idUser);
-
-		return new ResponseEntity<>(response, HttpStatus.CREATED);
+		
+		return new ResponseEntity<>(userServices.deleteUser(idUser), HttpStatus.CREATED);
 	}
 
 	@PutMapping(value = "/user")
@@ -121,9 +77,7 @@ public class UserController {
 			BindingResult errors) {
 		
 		ErrorUtil.validateError(errors);
-		ResponseGeneric response = userServices.updateUser(userUpdate);
-
-		return new ResponseEntity<>(response, HttpStatus.CREATED);
+		return new ResponseEntity<>(userServices.updateUser(userUpdate), HttpStatus.CREATED);
 	}
 
 

@@ -17,8 +17,6 @@ public interface IUserServices {
 
 	ResponseGeneric deleteUser(String idUser);
 
-	Boolean checkEmailAndPass(String user, String pass);
-
 	Boolean updateLastLogin(String idUser, String token, Date loginDate);
 
 	ResponseListUser getAllUser();
