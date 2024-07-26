@@ -1,16 +1,20 @@
 package cl.rest.especialista.integracion.errors;
 
-/**
- * @author avenegas
- *
- */
-public class GenericException extends RuntimeException  {
-	
+import org.springframework.http.HttpStatus;
 
-	private static final long serialVersionUID = 1L;
+import java.io.Serializable;
 
-	public GenericException(String detail) {
-		super(detail);
-	}
-	
+public class GenericException extends RuntimeException implements Serializable {
+
+    private static final long serialVersionUID = 7424277983984826834L;
+    private final HttpStatus httpStatus;
+
+    public GenericException(String message, HttpStatus status) {
+        super(message);
+        this.httpStatus = status;
+    }
+
+    public HttpStatus getHttpStatus() {
+        return this.httpStatus;
+    }
 }

@@ -1,5 +1,7 @@
 package cl.rest.especialista.integracion.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 import java.util.regex.Pattern;
 /**
@@ -28,5 +30,6 @@ public class CommonUtil {
         Pattern pattern = Pattern.compile(regexPattern);
         return pattern.matcher(fieldValue).matches();
     }
+    
 
 }

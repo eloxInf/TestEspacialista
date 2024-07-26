@@ -40,11 +40,11 @@ public class SpringSecurityConfig {
 		
 		return httpSecurity
 				.csrf().disable()
-				.authorizeHttpRequests( auth ->{
-					auth.antMatchers(HttpMethod.POST, "/especialista/v1/user").permitAll();
-					auth.antMatchers(HttpMethod.GET, "/security/v1/loginUser").permitAll();
-					auth.anyRequest().authenticated();
-					})
+				//.authorizeHttpRequests( auth ->{
+				//	auth.antMatchers(HttpMethod.POST, "/especialista/v1/user").permitAll();
+				//	auth.antMatchers(HttpMethod.GET, "/security/v1/loginUser").permitAll();
+				//	auth.anyRequest().authenticated();
+				//	})
 				.sessionManagement( session -> {
 					session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);	
 				})

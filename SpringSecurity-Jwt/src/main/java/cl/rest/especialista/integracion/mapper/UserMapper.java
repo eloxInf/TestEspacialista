@@ -1,5 +1,6 @@
 package cl.rest.especialista.integracion.mapper;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,12 +8,14 @@ import org.springframework.stereotype.Component;
 
 import cl.rest.especialista.integracion.dto.PhoneDto;
 import cl.rest.especialista.integracion.dto.PhoneUpdateDto;
+import cl.rest.especialista.integracion.dto.RequestUser;
 import cl.rest.especialista.integracion.dto.ResponseCreateUser;
 import cl.rest.especialista.integracion.dto.UserDto;
 import cl.rest.especialista.integracion.entity.ERole;
 import cl.rest.especialista.integracion.entity.RoleEntity;
 import cl.rest.especialista.integracion.entity.UsersEntity;
 import cl.rest.especialista.integracion.entity.UsersPhoneEntity;
+import cl.rest.especialista.integracion.util.CommonUtil;
 
 @Component
 public class UserMapper {
@@ -84,4 +87,22 @@ public class UserMapper {
 		return responseUser;
 
 	}
+	
+	
+	public UsersEntity requestUserToUsersEntity(RequestUser requestUser, String passwordEncoder, String token, Date dateNow, Boolean status) {
+		
+		UsersEntity userToCreate = UsersEntity.builder()
+				.name(requestUser.getName())
+				.pass(passwordEncoder)
+				.email(requestUser.getEmail())
+				.idUser(CommonUtil.generateUUID())
+				.token(token)
+				.modified(dateNow)
+				.created(dateNow)
+				.lastLogin(dateNow)
+				.isActive(status).build();
+		return userToCreate;
+	}
+	
+
 }

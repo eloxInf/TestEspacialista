@@ -9,10 +9,13 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import cl.rest.especialista.integracion.config.AppConfig;
 import cl.rest.especialista.integracion.config.security.JwtUtils;
+import cl.rest.especialista.integracion.constant.Constant;
 import cl.rest.especialista.integracion.dto.PhoneUpdateDto;
 import cl.rest.especialista.integracion.dto.RequestUpdateUser;
 import cl.rest.especialista.integracion.dto.RequestUser;
@@ -24,14 +27,12 @@ import cl.rest.especialista.integracion.entity.ERole;
 import cl.rest.especialista.integracion.entity.RoleEntity;
 import cl.rest.especialista.integracion.entity.UsersEntity;
 import cl.rest.especialista.integracion.entity.UsersPhoneEntity;
-import cl.rest.especialista.integracion.errors.EmailExistException;
 import cl.rest.especialista.integracion.errors.GenericException;
-import cl.rest.especialista.integracion.errors.UserNotFoundException;
 import cl.rest.especialista.integracion.mapper.UserMapper;
 import cl.rest.especialista.integracion.repository.PhoneRepository;
 import cl.rest.especialista.integracion.repository.UserRepository;
 import cl.rest.especialista.integracion.util.CommonUtil;
-import io.jsonwebtoken.Jwts;
+import cl.rest.especialista.integracion.util.ErrorUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -56,6 +57,9 @@ public class UserService implements IUserServices {
 	
 	@Autowired
 	private JwtUtils jwtUtils;
+	
+	@Autowired
+	private AppConfig appConfig;
 
 	@Override
 	public void createAdminUser() {
@@ -75,7 +79,7 @@ public class UserService implements IUserServices {
 			userRepository.save(usersEntity);
 		} catch (Exception e) {
 			log.error("[UserService]-[createAdminUser] error : " + e.getMessage());
-			throw new GenericException("Internal Error");
+			throw new GenericException("Internal Error", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -88,24 +92,50 @@ public class UserService implements IUserServices {
 	public ResponseCreateUser createUser(RequestUser requestUser) {
 
 		try {
+			
 			userRepository.findByEmail(requestUser.getEmail()).ifPresent(user -> {
-				throw new EmailExistException("Correo ya existe en otro usuario");
+				throw new GenericException(Constant.EMAIL_EXISTS, HttpStatus.CONFLICT);
 			});
-
-			UsersEntity usersEntity = setDataCreateUser(requestUser);
+			
+			boolean isValidRol = requestUser.getRoles().stream().allMatch(ErrorUtil::isRoleValid);
+			
+			if(!isValidRol) {
+				userRepository.findByEmail(requestUser.getEmail()).ifPresent(user -> {
+					throw new GenericException(Constant.ROLE_NOT_EXIST , HttpStatus.CONFLICT);
+				});
+			}
+			
+			if(!CommonUtil.validateRegexPattern(requestUser.getPassword(), appConfig.getPassRegex())) {
+				throw new GenericException(Constant.INVALID_PASSWORD , HttpStatus.BAD_REQUEST);
+			}
+			
+			
+			if(!CommonUtil.validateRegexPattern(requestUser.getEmail(), appConfig.getEmailRegex())){
+				throw new GenericException(Constant.INVALID_EMAIL , HttpStatus.BAD_REQUEST);
+			}
+			
+			
+			Date dateNew = new Date();
+			Boolean inicialStatus = true;
+			UsersEntity usersEntity = userMapper.requestUserToUsersEntity(requestUser, passwordEncoder.encode(requestUser.getPassword()), jwtUtils.generateAccessToken(requestUser.getEmail()), dateNew, inicialStatus);
+			
+			
 			List<UsersPhoneEntity> listPhone = userMapper.listPhoneDtoToUsersListPhoneEntity(requestUser.getPhones(),
 					usersEntity);
+			
 			usersEntity.setPhones(listPhone);
 			usersEntity.setRoles(userMapper.listRoleToEntity(requestUser.getRoles()));
+			
 			UsersEntity userSave = userRepository.save(usersEntity);
+			
 			return userMapper.usersEntityToResponseCreateUser(userSave);
 
-		} catch (EmailExistException e) {
+		} catch (GenericException e) {
 			throw e;
 
 		} catch (Exception e) {
 			log.error("[UserService]-[createUser] error : " + e.getMessage());
-			throw new GenericException("Internal Error");
+			throw new GenericException(Constant.INTERNAL_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
 
 		}
 
@@ -118,17 +148,17 @@ public class UserService implements IUserServices {
 	public Boolean updateLastLogin(String idUser, String token, Date loginDate) {
 		try {
 			UsersEntity userFind = userRepository.findById(idUser)
-					.orElseThrow(() -> new UserNotFoundException("Usuario no existe"));
+					.orElseThrow(() -> new GenericException(Constant.USER_NOT_FOUND ,  HttpStatus.NOT_FOUND));
 
 			userFind.setToken(idUser);
 			userFind.setLastLogin(loginDate);
 			userRepository.save(userFind);
 
-		} catch (UserNotFoundException e) {
+		} catch (GenericException e) {
 			throw e;
 		} catch (Exception e) {
 			log.error("[UserService]-[updateLastLogin] error : ", e.getMessage());
-			throw new GenericException("Internal Error");
+			throw new GenericException(Constant.INTERNAL_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
 
 		}
 
@@ -143,15 +173,15 @@ public class UserService implements IUserServices {
 	public ResponseGeneric deleteUser(String idUser) {
 		try {
 			UsersEntity userDelete = userRepository.findById(idUser)
-					.orElseThrow(() -> new UserNotFoundException("Usuario no existe"));
+					.orElseThrow(() -> new GenericException(Constant.USER_NOT_FOUND,  HttpStatus.NOT_FOUND));
 
 			userRepository.delete(userDelete);
-			return ResponseGeneric.builder().message("Ok").build();
-		} catch (UserNotFoundException e) {
+			return ResponseGeneric.builder().message(Constant.OK).build();
+		} catch (GenericException e) {
 			throw e;
 		} catch (Exception e) {
 			log.error("[UserService]-[deleteUser] error : ", e.getMessage());
-			throw new GenericException("Internal Error");
+			throw new GenericException(Constant.INTERNAL_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
 
 		}
 
@@ -169,7 +199,7 @@ public class UserService implements IUserServices {
 			return (ResponseListUser.builder().userData(listUserDto).build());
 		} catch (Exception e) {
 			log.error("[UserService]-[getAllUser] error : ", e.getMessage());
-			throw new GenericException("Internal Error");
+			throw new GenericException(Constant.INTERNAL_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
 
 		}
 	}
@@ -181,13 +211,16 @@ public class UserService implements IUserServices {
 	public UserDto getOneUser(String idUser) {
 		try {
 			UsersEntity userFind = userRepository.findById(idUser)
-					.orElseThrow(() -> new UserNotFoundException("Usuario no existe"));
+					.orElseThrow(() -> new GenericException(Constant.USER_NOT_FOUND,  HttpStatus.NOT_FOUND));
 			UserDto userDto = userMapper.userBdToUserDto(userFind);
 			return userDto;
+			
+		} catch (GenericException e) {
+			throw e;
+
 		} catch (Exception e) {
 			log.error("[UserService]-[getOneUser] error : ", e.getMessage());
-			throw new GenericException("Internal Error");
-
+			throw new GenericException(Constant.INTERNAL_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
 	}
@@ -199,7 +232,7 @@ public class UserService implements IUserServices {
 	@Transactional
 	public ResponseGeneric updateUser(RequestUpdateUser userRequest) {
 		try {
-			UsersEntity userFind = userRepository.findById(userRequest.getIdUser()).orElseThrow(() -> new UserNotFoundException("Usuario no existe"));;
+			UsersEntity userFind = userRepository.findById(userRequest.getIdUser()).orElseThrow(() -> new GenericException(Constant.USER_NOT_FOUND,  HttpStatus.NOT_FOUND));;
 
 			userFind.setName(userRequest.getName());
 			userFind.setEmail(userRequest.getEmail());
@@ -208,16 +241,16 @@ public class UserService implements IUserServices {
 			
 			updateUserPhone(userFind, userRequest);
 			
-		} catch (UserNotFoundException e) {
+		} catch (GenericException e) {
 			throw e;
 
 		} catch (Exception e) {
 			log.error("[UserService]-[updateUser] error : ", e.getMessage());
-			throw new GenericException("Internal Error");
+			throw new GenericException(Constant.INTERNAL_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
 
 		}
 
-		return ResponseGeneric.builder().message("ok").build();
+		return ResponseGeneric.builder().message(Constant.OK).build();
 	}
 
 	/**
@@ -274,10 +307,12 @@ public class UserService implements IUserServices {
 	 * @param requestPhone
 	 */
 	private void deletePhone(List<UsersPhoneEntity> actualPhone, List<PhoneUpdateDto> requestPhone) {
-		actualPhone.stream()
-				.filter(x -> !findPhoneinRequest(requestPhone, x.getId() + "")).forEach(userDelete -> {
-					phoneRepository.delete(userDelete);
-				});
+		
+		List<UsersPhoneEntity> actualPhoneDelete = 	actualPhone.stream()
+				.filter(x -> !findPhoneinRequest(requestPhone, x.getId() + "")).toList();
+		
+		phoneRepository.deleteAll(actualPhoneDelete);
+	
 	}
 
 	/**
@@ -298,9 +333,15 @@ public class UserService implements IUserServices {
 	 * @return
 	 */
 	private UsersEntity setDataCreateUser(RequestUser requestUser) {
-
+	
 		Date dateNew = new Date();
 		
+		Boolean inicialStatus = true;
+		
+		
+
+		
+		/*
 		UsersEntity userToCreate = UsersEntity.builder()
 				.name(requestUser.getName())
 				.pass(passwordEncoder.encode(requestUser.getPassword()))
@@ -311,8 +352,11 @@ public class UserService implements IUserServices {
 				.created(dateNew)
 				.lastLogin(dateNew)
 				.isActive(true).build();
+						return userToCreate;
+*/
+		
+		return null;
 
-		return userToCreate;
 	}
 
 }

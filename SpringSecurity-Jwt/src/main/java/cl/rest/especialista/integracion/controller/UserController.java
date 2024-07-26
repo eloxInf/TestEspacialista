@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +39,7 @@ public class UserController {
 	private IUserServices userServices;
 	
 	@PostMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
-	@PreAuthorize("hasRole('ADMIN')")
+	//@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<ResponseCreateUser> createUser(@Valid @RequestBody RequestUser userData,
 			BindingResult errors) {
 		
@@ -49,20 +48,19 @@ public class UserController {
 	}
 
 	@GetMapping(value = "/users")
-	@PreAuthorize("hasAnyRole('ADMIN','EDITOR', 'USER')")
+	//@PreAuthorize("hasAnyRole('ADMIN','EDITOR', 'USER')")
 	public ResponseEntity<ResponseListUser> getAllUser() {
 		return new ResponseEntity<>(userServices.getAllUser(), HttpStatus.CREATED);
 	}
 
 	@GetMapping(value = "/user/{idUser}")
-	@PreAuthorize("hasRole('ADMIN','EDITOR', 'USER')")
-	public ResponseEntity<UserDto> getUser(@PathVariable(required = true) String idUser, BindingResult errors) {
-		ErrorUtil.validateError(errors);
+	//@PreAuthorize("hasRole('ADMIN','EDITOR', 'USER')")
+	public ResponseEntity<UserDto> getUser(@PathVariable String idUser) {
 		return new ResponseEntity<>(userServices.getOneUser(idUser), HttpStatus.CREATED);
 	}
 
 	@DeleteMapping(value = "/user/{idUser}")
-	@PreAuthorize("hasRole('ADMIN')")
+	//@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<ResponseGeneric> deleteUser(
 			@PathVariable String idUser) {
 		
@@ -70,12 +68,10 @@ public class UserController {
 	}
 
 	@PutMapping(value = "/user")
-	@PreAuthorize("hasRole('ADMIN','EDITOR')")
+	//@PreAuthorize("hasRole('ADMIN','EDITOR')")
 	public ResponseEntity<ResponseGeneric> updateUser(
 			 @RequestBody RequestUpdateUser userUpdate, 
 			BindingResult errors) {
-		
-		ErrorUtil.validateError(errors);
 		return new ResponseEntity<>(userServices.updateUser(userUpdate), HttpStatus.CREATED);
 	}
 

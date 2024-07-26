@@ -1,7 +1,9 @@
 package cl.rest.especialista.integracion.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author avenegas
@@ -9,6 +11,8 @@ import lombok.Data;
  */
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PhoneUpdateDto {
 	private String id;
     private String number;

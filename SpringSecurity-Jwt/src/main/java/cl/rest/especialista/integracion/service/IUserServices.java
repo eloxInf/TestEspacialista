@@ -8,12 +8,11 @@ import cl.rest.especialista.integracion.dto.ResponseCreateUser;
 import cl.rest.especialista.integracion.dto.ResponseGeneric;
 import cl.rest.especialista.integracion.dto.ResponseListUser;
 import cl.rest.especialista.integracion.dto.UserDto;
-import cl.rest.especialista.integracion.errors.EmailExistException;
 
 
 public interface IUserServices {
 
-	ResponseCreateUser createUser(RequestUser userData) throws EmailExistException;
+	ResponseCreateUser createUser(RequestUser userData);
 
 	ResponseGeneric deleteUser(String idUser);
 
